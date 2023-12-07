@@ -17,6 +17,10 @@ public class    StageSelect: MonoBehaviour {
         } else if(this.tag =="stg3" && other.CompareTag("Player"))
         {
             SceneManager.LoadScene("Stage3");
+        } else if (this.tag == "Portal" && other.CompareTag("Player"))
+        {
+            TimerController timerController = FindObjectOfType<TimerController>();
+            timerController.GameOver();
         }
     }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "30310277239",
+    "project_id": "fm-sas-freeair-6a937",
+    "storage_bucket": "fm-sas-freeair-6a937.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:30310277239:android:9ecf1316af686f972e6672",
+        "android_client_info": {
+          "package_name": "jp.fourm.freeair"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAYrKmxdEN1gwyQWJMptzAWxlOfm5dtEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

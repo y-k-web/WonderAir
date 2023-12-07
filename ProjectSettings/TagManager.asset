@@ -8,6 +8,13 @@ TagManager:
   - stg1
   - stg2
   - stg3
+  - Terrain
+  - Key
+  - Portal
+  - Gem
+  - boundary
+  - Title
+  - GameOverController
   layers:
   - Default
   - TransparentFX
