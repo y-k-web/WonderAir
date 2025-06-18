@@ -1,8 +1,7 @@
-// TimerController.cs
-
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using RageRunGames.EasyFlyingSystem; // DroneController を含む名前空間を追加
 
 public class TimerController : MonoBehaviour
 {
@@ -16,10 +15,10 @@ public class TimerController : MonoBehaviour
     public GameObject resultVertical; // 縦向きのときに表示するゲームオーバー画面
     public GameObject resultHorizontal; // 横向きのときに表示するゲームオーバー画面
     public ScoreManager scoreManager; // ScoreManagerへの参照
+
     void Start()
     {
         currentTime = timeLimit;
-        // scoreManager = FindObjectOfType<ScoreManager>();
     }
 
     void Update()
@@ -62,36 +61,35 @@ public class TimerController : MonoBehaviour
     {
         currentTime += amount;
     }
+
     public void SetTimerVisibility(bool isVerticalVisible, bool isHorizontalVisible)
-{
-    timerTextVertical.enabled = isVerticalVisible;
-    timerTextHorizontal.enabled = isHorizontalVisible;
-}
-
-public void GameOver()
-{
-    isGameOver = true; // ゲームオーバーフラグを設定
-
-    // ゲームオーバー時のプレイヤーの操作を無効にする
-    PlayerController playerController = FindObjectOfType<PlayerController>();
-    if (playerController != null)
     {
-        playerController.SetCanMove(false);
+        timerTextVertical.enabled = isVerticalVisible;
+        timerTextHorizontal.enabled = isHorizontalVisible;
     }
 
-    // 画面の向きに応じて適切なゲームオーバー画面を表示
-    if (Screen.orientation == ScreenOrientation.Portrait ||
-        Screen.orientation == ScreenOrientation.PortraitUpsideDown)
+    public void GameOver()
     {
-        resultVertical.SetActive(true);
-    }
-    else if (Screen.orientation == ScreenOrientation.LandscapeLeft || 
-             Screen.orientation == ScreenOrientation.LandscapeRight)
-    {
-        resultHorizontal.SetActive(true);
-    }
+        isGameOver = true; // ゲームオーバーフラグを設定
 
-    scoreManager.UpdateGameOverScoreText();
-    Debug.Log("GameOver method is called");
-}
+        // ゲームオーバー時のプレイヤーの操作を無効にする
+        DroneController droneController = FindObjectOfType<DroneController>();
+        if (droneController != null)
+        {
+            droneController.enabled = false; // DroneController を無効にして動作を停止
+        }
+
+        // 画面の向きに応じて適切なゲームオーバー画面を表示
+        if (Screen.orientation == ScreenOrientation.Portrait || Screen.orientation == ScreenOrientation.PortraitUpsideDown)
+        {
+            resultVertical.SetActive(true);
+        }
+        else if (Screen.orientation == ScreenOrientation.LandscapeLeft || Screen.orientation == ScreenOrientation.LandscapeRight)
+        {
+            resultHorizontal.SetActive(true);
+        }
+
+        scoreManager.UpdateGameOverScoreText();
+        Debug.Log("GameOver method is called");
+    }
 }

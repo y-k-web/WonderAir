@@ -22,7 +22,7 @@ public class KeyCollector : MonoBehaviour
         {
             if (timerController != null)
             {
-                timerController.AddTime(30f);  // タイマーにx秒を追加
+                timerController.AddTime(60f);  // タイマーにx秒を追加
             }
 
             if (scoreManager != null)
