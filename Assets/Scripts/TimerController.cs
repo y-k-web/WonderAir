@@ -21,6 +21,11 @@ public class TimerController : MonoBehaviour
     {
         currentTime = timeLimit;
         UIHandler.Instance.RegisterOrientationObjects(timerTextVertical.gameObject, timerTextHorizontal.gameObject);
+
+        if (scoreManager == null)
+        {
+            scoreManager = FindObjectOfType<ScoreManager>();
+        }
     }
 
     void Update()

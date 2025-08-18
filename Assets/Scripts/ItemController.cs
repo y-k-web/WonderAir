@@ -23,6 +23,11 @@ public class ItemController : MonoBehaviour
             material = renderer.material;
             initialColor = material.color;
         }
+
+        if (scoreManager == null)
+        {
+            scoreManager = FindObjectOfType<ScoreManager>();
+        }
     }
 
     void Update()
