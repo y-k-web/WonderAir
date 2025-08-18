@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class    StageSelect: MonoBehaviour {
+    [SerializeField] private TimerController timerController;
 
     void OnTriggerEnter (Collider other) {
 
@@ -19,8 +20,14 @@ public class    StageSelect: MonoBehaviour {
             SceneManager.LoadScene("Stage3");
         } else if (this.tag == "Portal" && other.CompareTag("Player"))
         {
-            TimerController timerController = FindObjectOfType<TimerController>();
-            timerController.GameOver();
+            if (timerController != null)
+            {
+                timerController.GameOver();
+            }
+            else
+            {
+                Debug.LogWarning("TimerController reference is not set.");
+            }
         }
     }
 }

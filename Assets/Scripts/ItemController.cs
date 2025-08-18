@@ -11,6 +11,7 @@ public class ItemController : MonoBehaviour
     private Material material;    // オブジェクトのマテリアル
     private Color initialColor;   // 初期カラー
     private bool isShrinking = false;
+    [SerializeField] private ScoreManager scoreManager;
 
     void Start()
     {
@@ -43,7 +44,10 @@ public class ItemController : MonoBehaviour
             }
 
             isShrinking = true;
-            FindObjectOfType<ScoreManager>().AddScore(ringScore);
+            if (scoreManager != null)
+            {
+                scoreManager.AddScore(ringScore);
+            }
 
             BoostController boostController = other.GetComponent<BoostController>();
             if (boostController != null)

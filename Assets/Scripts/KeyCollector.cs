@@ -2,19 +2,8 @@ using UnityEngine;
 
 public class KeyCollector : MonoBehaviour
 {
-    private TimerController timerController;
-    private ScoreManager scoreManager; 
-
-    private void Start()
-    {
-        // シーン内のUIManagerオブジェクトのUIHandlerスクリプトを探して取得
-        GameObject uiManagerObject = GameObject.Find("UIManager");
-        if (uiManagerObject != null)
-        {
-            timerController = uiManagerObject.GetComponent<TimerController>();
-            scoreManager = FindObjectOfType<ScoreManager>();
-        }
-    }
+    [SerializeField] private TimerController timerController;
+    [SerializeField] private ScoreManager scoreManager;
 
     private void OnTriggerEnter(Collider other)
     {

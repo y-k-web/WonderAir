@@ -14,7 +14,8 @@ public class TimerController : MonoBehaviour
     private bool isGameOver = false; // ゲームオーバーフラグ
     public GameObject resultVertical; // 縦向きのときに表示するゲームオーバー画面
     public GameObject resultHorizontal; // 横向きのときに表示するゲームオーバー画面
-    public ScoreManager scoreManager; // ScoreManagerへの参照
+    [SerializeField] private ScoreManager scoreManager; // ScoreManagerへの参照
+    [SerializeField] private DroneController droneController; // DroneControllerへの参照
 
     void Start()
     {
@@ -68,10 +69,13 @@ public class TimerController : MonoBehaviour
         isGameOver = true; // ゲームオーバーフラグを設定
 
         // ゲームオーバー時のプレイヤーの操作を無効にする
-        DroneController droneController = FindObjectOfType<DroneController>();
         if (droneController != null)
         {
             droneController.enabled = false; // DroneController を無効にして動作を停止
+        }
+        else
+        {
+            Debug.LogWarning("DroneController reference is not set.");
         }
 
         UIHandler.Instance.RegisterOrientationObjects(resultVertical, resultHorizontal);
