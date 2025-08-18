@@ -19,6 +19,7 @@ public class TimerController : MonoBehaviour
     void Start()
     {
         currentTime = timeLimit;
+        UIHandler.Instance.RegisterOrientationObjects(timerTextVertical.gameObject, timerTextHorizontal.gameObject);
     }
 
     void Update()
@@ -62,12 +63,6 @@ public class TimerController : MonoBehaviour
         currentTime += amount;
     }
 
-    public void SetTimerVisibility(bool isVerticalVisible, bool isHorizontalVisible)
-    {
-        timerTextVertical.enabled = isVerticalVisible;
-        timerTextHorizontal.enabled = isHorizontalVisible;
-    }
-
     public void GameOver()
     {
         isGameOver = true; // ゲームオーバーフラグを設定
@@ -79,15 +74,7 @@ public class TimerController : MonoBehaviour
             droneController.enabled = false; // DroneController を無効にして動作を停止
         }
 
-        // 画面の向きに応じて適切なゲームオーバー画面を表示
-        if (Screen.orientation == ScreenOrientation.Portrait || Screen.orientation == ScreenOrientation.PortraitUpsideDown)
-        {
-            resultVertical.SetActive(true);
-        }
-        else if (Screen.orientation == ScreenOrientation.LandscapeLeft || Screen.orientation == ScreenOrientation.LandscapeRight)
-        {
-            resultHorizontal.SetActive(true);
-        }
+        UIHandler.Instance.RegisterOrientationObjects(resultVertical, resultHorizontal);
 
         scoreManager.UpdateGameOverScoreText();
         Debug.Log("GameOver method is called");
