@@ -5,7 +5,7 @@ namespace RageRunGames.EasyFlyingSystem
     [DisallowMultipleComponent]
     public class CameraController : MonoBehaviour
     {
-        public Transform target;
+        [SerializeField] private Transform target;
         public float smoothSpeed = 0.125f;
         public Vector3 offset = new Vector3(0f, 2f, -5f);
         private Vector3 currentVel;
@@ -16,13 +16,8 @@ namespace RageRunGames.EasyFlyingSystem
         {
             if (target == null)
             {
-                target = FindObjectOfType<DroneController>().transform;
-
-                if (target == null)
-                {
-                    Debug.LogWarning(
-                        "Fly controller missing in the scene. Please add it in scene and assign target reference on MainCamera");
-                }
+                Debug.LogWarning(
+                    "Fly controller missing in the scene. Please add it in scene and assign target reference on MainCamera");
             }
         }
 
