@@ -5,6 +5,19 @@ public class KeyCollector : MonoBehaviour
     [SerializeField] private TimerController timerController;
     [SerializeField] private ScoreManager scoreManager;
 
+    private void Awake()
+    {
+        if (timerController == null)
+        {
+            timerController = FindObjectOfType<TimerController>();
+        }
+
+        if (scoreManager == null)
+        {
+            scoreManager = FindObjectOfType<ScoreManager>();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
