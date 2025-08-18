@@ -1,61 +1,64 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; 
+
 public class UIHandler : MonoBehaviour
 {
+    public static UIHandler Instance { get; private set; }
+
     public Camera mainCamera; // MainCameraをインスペクタからアサインします
     public Canvas verticalCanvas; // 縦向きのときに表示するキャンバス
     public Canvas horizontalCanvas; // 横向きのときに表示するキャンバス
-    private CanvasRenderer verticalRenderer; 
-    private CanvasRenderer horizontalRenderer;
 
     public float verticalFOV = 100f; // 縦向きの時のカメラのFOV
     public float horizontalFOV = 50f; // 横向きの時のカメラのFOV
 
+    private readonly List<OrientationPair> orientationPairs = new();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
-        // Start時にCanvasRendererコンポーネントを取得
-        verticalRenderer = verticalCanvas.GetComponent<CanvasRenderer>();
-        horizontalRenderer = horizontalCanvas.GetComponent<CanvasRenderer>();
+        RegisterOrientationObjects(verticalCanvas.gameObject, horizontalCanvas.gameObject);
     }
-private void SetCanvasVisibility(Canvas canvas, bool isVisible)
-{
-    Graphic[] graphics = canvas.GetComponentsInChildren<Graphic>();
-    foreach (Graphic graphic in graphics)
-    {
-        graphic.color = new Color(graphic.color.r, graphic.color.g, graphic.color.b, isVisible ? 1f : 0f);
-    }
-}
 
     private void Update()
     {
-        UIswitcher();
-    }
+        bool isVertical = IsPortrait();
+        mainCamera.fieldOfView = isVertical ? verticalFOV : horizontalFOV;
 
-private void UIswitcher()
-{
-    TimerController timerController = FindObjectOfType<TimerController>();
-    if (Screen.orientation == ScreenOrientation.Portrait ||
-        Screen.orientation == ScreenOrientation.PortraitUpsideDown)
-    {
-        SetCanvasVisibility(verticalCanvas, true);
-        SetCanvasVisibility(horizontalCanvas, false);
-        mainCamera.fieldOfView = verticalFOV;
-        if(timerController != null)
+        foreach (var pair in orientationPairs)
         {
-            timerController.SetTimerVisibility(true, false);
+            if (pair.vertical != null) pair.vertical.SetActive(isVertical);
+            if (pair.horizontal != null) pair.horizontal.SetActive(!isVertical);
         }
     }
-    else if (Screen.orientation == ScreenOrientation.LandscapeLeft || 
-             Screen.orientation == ScreenOrientation.LandscapeRight)
+
+    public void RegisterOrientationObjects(GameObject vertical, GameObject horizontal)
     {
-        SetCanvasVisibility(verticalCanvas, false);
-        SetCanvasVisibility(horizontalCanvas, true);
-        mainCamera.fieldOfView = horizontalFOV;
-        if(timerController != null)
+        orientationPairs.Add(new OrientationPair(vertical, horizontal));
+        bool isVertical = IsPortrait();
+        if (vertical != null) vertical.SetActive(isVertical);
+        if (horizontal != null) horizontal.SetActive(!isVertical);
+    }
+
+    public bool IsPortrait()
+    {
+        return Screen.orientation == ScreenOrientation.Portrait ||
+               Screen.orientation == ScreenOrientation.PortraitUpsideDown;
+    }
+
+    private struct OrientationPair
+    {
+        public GameObject vertical;
+        public GameObject horizontal;
+
+        public OrientationPair(GameObject v, GameObject h)
         {
-            timerController.SetTimerVisibility(false, true);
+            vertical = v;
+            horizontal = h;
         }
     }
-}
-
 }

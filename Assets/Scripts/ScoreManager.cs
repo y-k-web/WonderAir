@@ -147,17 +147,8 @@ public class ScoreManager : MonoBehaviour
     }
     public void UpdateGameOverScoreText()
     {
-    if (Screen.orientation == ScreenOrientation.Portrait ||
-        Screen.orientation == ScreenOrientation.PortraitUpsideDown)
-    {
-        scoreResultVertical.text = "Score: " + score;
-        scoreResultHorizontal.text = ""; // 横向きのテキストを空にします。
-    }
-    else if (Screen.orientation == ScreenOrientation.LandscapeLeft || 
-             Screen.orientation == ScreenOrientation.LandscapeRight)
-    {
-        scoreResultHorizontal.text = "Score: " + score;
-        scoreResultVertical.text = ""; // 縦向きのテキストを空にします。
-    }
+        string result = "Score: " + score;
+        scoreResultVertical.text = result;
+        scoreResultHorizontal.text = result;
     }
 }

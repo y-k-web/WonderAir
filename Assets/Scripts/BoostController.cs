@@ -42,6 +42,12 @@ public class BoostController : MonoBehaviour
         }
 
         UpdateBoostUI();
+
+        if (UIHandler.Instance != null)
+        {
+            UIHandler.Instance.RegisterOrientationObjects(boostBarVertical?.gameObject, boostBarHorizontal?.gameObject);
+            UIHandler.Instance.RegisterOrientationObjects(boostButtonVertical?.gameObject, boostButtonHorizontal?.gameObject);
+        }
     }
 
     void Update()
