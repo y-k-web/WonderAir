@@ -147,14 +147,14 @@ namespace RageRunGames.EasyFlyingSystem
         }
 
     //Keyboard Debug input
-    private void UpdateKnobPosition()
-    {
-    if (knob != null && holder != null)
-    {
-        Vector2 radius = holder.sizeDelta / 2;
-        knob.anchoredPosition = inputVector * radius; // inputVector に基づいてノブの位置を更新
-    }
-    }
+      private void UpdateKnobPosition()
+      {
+      if (knob != null && holder != null)
+      {
+          Vector2 radius = holder.sizeDelta / 2;
+          knob.anchoredPosition = inputVector * radius * rangeValue; // inputVector に基づいてノブの位置を更新
+      }
+      }
 
     public void SetDebugInput(Vector2 debugInput)
     {
