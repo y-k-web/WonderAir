@@ -8,7 +8,6 @@ namespace RageRunGames.EasyFlyingSystem
         [SerializeField] private MobileController mobileController; // MobileControllerの参照
         [SerializeField] private bool enableDebugInput = true;      // デバッグ入力を有効化
         [SerializeField] private bool enableHorizontalInput = true; // 水平軸の入力を有効化
-
         private bool wasKeyboardInput = false; // 前フレームでキーボード入力があったか
         private Vector2 lastKeyboardVector = Vector2.zero; // 前回適用したキーボード入力
 
