@@ -8,6 +8,8 @@ namespace RageRunGames.EasyFlyingSystem
         [SerializeField] private MobileController mobileController; // MobileControllerの参照
         [SerializeField] private bool enableDebugInput = true;      // デバッグ入力を有効化
         [SerializeField] private bool enableHorizontalInput = true; // 水平軸の入力を有効化
+        private bool wasKeyboardInput = false; // 前フレームでキーボード入力があったか
+        private Vector2 lastKeyboardVector = Vector2.zero; // 前回適用したキーボード入力
 
         private void Start()
         {
@@ -27,38 +29,52 @@ namespace RageRunGames.EasyFlyingSystem
             if (!enableDebugInput || mobileController == null)
                 return;
 
-            // キーボードの垂直入力を取得 (W/S)
+            // キーボード入力を取得
             float verticalInput = 0f;
-            if (Input.GetKey(KeyCode.W))
-                verticalInput += 1f;
-            if (Input.GetKey(KeyCode.S))
-                verticalInput -= 1f;
-
-            // 水平軸が有効な場合のみキーボードの水平入力を取得 (A/D)
             float horizontalInput = 0f;
+            bool hasInput = false;
+
+            if (Input.GetKey(KeyCode.W))
+            {
+                verticalInput += 1f;
+                hasInput = true;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                verticalInput -= 1f;
+                hasInput = true;
+            }
+
             if (enableHorizontalInput)
             {
                 if (Input.GetKey(KeyCode.D))
+                {
                     horizontalInput += 1f;
+                    hasInput = true;
+                }
                 if (Input.GetKey(KeyCode.A))
+                {
                     horizontalInput -= 1f;
+                    hasInput = true;
+                }
             }
 
-            // MobileControllerに入力を適用
-            ApplyKeyboardInputToJoystick(horizontalInput, verticalInput);
-        }
-
-        private void ApplyKeyboardInputToJoystick(float horizontal, float vertical)
-        {
-            // 入力ベクトルを作成
-            Vector2 inputVector = new Vector2(horizontal, vertical);
-            inputVector = Vector2.ClampMagnitude(inputVector, 1f); // 入力値を正規化
-
-            // MobileControllerにデバッグ入力を設定
-            mobileController.SetDebugInput(inputVector);
-
-            // デバッグログで確認
-            Debug.Log($"Horizontal Input: {horizontal}, Vertical Input: {vertical}");
+            if (hasInput)
+            {
+                Vector2 mobileInput = mobileController.CurrentInput - lastKeyboardVector;
+                Vector2 keyboardVector = new Vector2(horizontalInput, verticalInput);
+                lastKeyboardVector = keyboardVector;
+                Vector2 combined = Vector2.ClampMagnitude(mobileInput + keyboardVector, 1f);
+                mobileController.SetDebugInput(combined);
+                wasKeyboardInput = true;
+            }
+            else if (wasKeyboardInput)
+            {
+                Vector2 mobileInput = mobileController.CurrentInput - lastKeyboardVector;
+                mobileController.SetDebugInput(mobileInput);
+                lastKeyboardVector = Vector2.zero;
+                wasKeyboardInput = false;
+            }
         }
     }
 }

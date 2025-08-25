@@ -16,6 +16,11 @@ namespace RageRunGames.EasyFlyingSystem
             get { return (snapX) ? SnapInputs(inputVector.x, AxisTypes.Horizontal) : inputVector.x; }
         }
 
+        public Vector2 CurrentInput
+        {
+            get { return inputVector; }
+        }
+
 
         public float RangeValue
         {
