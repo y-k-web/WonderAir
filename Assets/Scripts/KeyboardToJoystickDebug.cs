@@ -6,10 +6,8 @@ namespace RageRunGames.EasyFlyingSystem
     public class KeyboardToJoystickDebug : MonoBehaviour
     {
         [SerializeField] private MobileController mobileController; // MobileControllerの参照
-        [SerializeField] private string verticalAxis = "KeyVertical";  // 垂直軸の名前
-        [SerializeField] private string horizontalAxis = "KeyHorizontal"; // 水平軸の名前
         [SerializeField] private bool enableDebugInput = true;      // デバッグ入力を有効化
-        [SerializeField] private bool enableHorizontalInput = false; // 水平軸の入力を有効化
+        [SerializeField] private bool enableHorizontalInput = true; // 水平軸の入力を有効化
 
         private void Start()
         {
@@ -29,11 +27,22 @@ namespace RageRunGames.EasyFlyingSystem
             if (!enableDebugInput || mobileController == null)
                 return;
 
-            // キーボードの垂直入力を取得
-            float verticalInput = Input.GetAxis(verticalAxis);
+            // キーボードの垂直入力を取得 (W/S)
+            float verticalInput = 0f;
+            if (Input.GetKey(KeyCode.W))
+                verticalInput += 1f;
+            if (Input.GetKey(KeyCode.S))
+                verticalInput -= 1f;
 
-            // 水平軸が有効な場合のみキーボードの水平入力を取得
-            float horizontalInput = enableHorizontalInput ? Input.GetAxis(horizontalAxis) : 0f;
+            // 水平軸が有効な場合のみキーボードの水平入力を取得 (A/D)
+            float horizontalInput = 0f;
+            if (enableHorizontalInput)
+            {
+                if (Input.GetKey(KeyCode.D))
+                    horizontalInput += 1f;
+                if (Input.GetKey(KeyCode.A))
+                    horizontalInput -= 1f;
+            }
 
             // MobileControllerに入力を適用
             ApplyKeyboardInputToJoystick(horizontalInput, verticalInput);
