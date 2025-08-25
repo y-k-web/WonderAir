@@ -180,6 +180,7 @@ MonoBehaviour:
   resultVertical: {fileID: 0}
   resultHorizontal: {fileID: 0}
   scoreManager: {fileID: 0}
+  droneController: {fileID: 0}
 --- !u!114 &36812908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5823,6 +5824,7 @@ MonoBehaviour:
   resultVertical: {fileID: 1531548272}
   resultHorizontal: {fileID: 1649030711}
   scoreManager: {fileID: 196414488}
+  droneController: {fileID: 0}
 --- !u!114 &196414487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5835,11 +5837,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533633f2371266f47aa28738ef2fbabc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boostBar: {fileID: 944069088}
-  boostBar2: {fileID: 270463296}
+  boostBarVertical: {fileID: 0}
+  boostBarHorizontal: {fileID: 0}
   maxBoost: 100
   boostConsumptionRate: 20
   boostRechargeRate: 10
+  boostSpeedMultiplier: 2
+  boostButtonVertical: {fileID: 0}
+  boostButtonHorizontal: {fileID: 0}
 --- !u!114 &196414488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6363,8 +6368,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -16, y: 121}
-  m_SizeDelta: {x: 673.0981, y: 112.5387}
+  m_AnchoredPosition: {x: -16, y: 69.61901}
+  m_SizeDelta: {x: 673.0981, y: 23.2445}
   m_Pivot: {x: 0.5, y: 0.57541215}
 --- !u!114 &628792303
 MonoBehaviour:
@@ -6413,8 +6418,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64
-  m_fontSizeBase: 64
+  m_fontSize: 48
+  m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -6449,7 +6454,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -43.97278, z: 0, w: 0}
+  m_margin: {x: 0, y: -45.367252, z: 0, w: 19.522863}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -7100,6 +7105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab74a9961d3c01c48ad6c05a22f2afb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timerController: {fileID: 0}
 --- !u!65 &674968488
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13595,6 +13601,7 @@ MonoBehaviour:
   resultVertical: {fileID: 0}
   resultHorizontal: {fileID: 0}
   scoreManager: {fileID: 0}
+  droneController: {fileID: 0}
 --- !u!114 &1151321232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13718,6 +13725,7 @@ MonoBehaviour:
   fadeSpeed: 200
   ringScore: 50
   boostRecoveryAmount: 10
+  scoreManager: {fileID: 0}
 --- !u!65 &1159057173
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13912,7 +13920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08c0c1d5257a45a282b37f21be70f4b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1760683474}
   smoothSpeed: 0.125
   offset: {x: 0, y: 5.78, z: -10.96}
   ignoreLookAt: 0
@@ -14401,6 +14409,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab74a9961d3c01c48ad6c05a22f2afb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timerController: {fileID: 0}
 --- !u!65 &1353105345
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14925,7 +14934,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   result: {fileID: 1531548272}
-  playerController: {fileID: 0}
+  droneController: {fileID: 0}
 --- !u!114 &1531548275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14990,6 +14999,7 @@ MonoBehaviour:
   fadeSpeed: 200
   ringScore: 50
   boostRecoveryAmount: 10
+  scoreManager: {fileID: 0}
 --- !u!65 &1555239101
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15194,7 +15204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   result: {fileID: 1649030711}
-  playerController: {fileID: 0}
+  droneController: {fileID: 0}
 --- !u!114 &1649030714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15953,6 +15963,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 149275637286518126, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 149275637286518126, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -232
+      objectReference: {fileID: 0}
     - target: {fileID: 254918991797738189, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: maxDrag
       value: 1.5
@@ -16019,6 +16037,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 254918991797738189, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: pitchRotationLimit.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 789042550116449493, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1022422231302300616, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
@@ -16096,6 +16118,14 @@ PrefabInstance:
     - target: {fileID: 5748480231206813907, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: axisTypes
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5969388360051456891, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.000061035
+      objectReference: {fileID: 0}
+    - target: {fileID: 5969388360051456891, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -187.71
       objectReference: {fileID: 0}
     - target: {fileID: 6024589118350156552, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: m_TagString
@@ -16738,6 +16768,7 @@ MonoBehaviour:
   fadeSpeed: 200
   ringScore: 50
   boostRecoveryAmount: 10
+  scoreManager: {fileID: 0}
 --- !u!65 &2072960761
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -16810,6 +16841,7 @@ MonoBehaviour:
   fadeSpeed: 200
   ringScore: 50
   boostRecoveryAmount: 10
+  scoreManager: {fileID: 0}
 --- !u!65 &2128269787
 BoxCollider:
   m_ObjectHideFlags: 0
