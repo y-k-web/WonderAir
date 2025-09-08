@@ -56229,6 +56229,10 @@ MonoBehaviour:
   boostSpeedMultiplier: 2
   boostButtonVertical: {fileID: 1952864368}
   boostButtonHorizontal: {fileID: 1429971185}
+  leftHandParticle: {fileID: 971091789}
+  rightHandParticle: {fileID: 645646772}
+  leftTrail: {fileID: 0}
+  rightTrail: {fileID: 0}
 --- !u!1 &2104318828
 GameObject:
   m_ObjectHideFlags: 0
@@ -56278,12 +56282,7 @@ MonoBehaviour:
   - {fileID: 195601528}
   - {fileID: 1763385226}
   - {fileID: 615268679}
-  minX: -320
-  maxX: -440
-  minY: 20
-  maxY: 50
-  minZ: 0
-  maxZ: 150
+  boundary: {fileID: 0}
 --- !u!1001 &2104912304
 PrefabInstance:
   m_ObjectHideFlags: 0
