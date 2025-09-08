@@ -17,6 +17,7 @@ public class ScoreManager : MonoBehaviour
     public GameObject Portal;
     public GameObject ItemSet;
     public ObjectSpawner objectSpawner;
+    [SerializeField] private TimerController timerController; // タイマー制御
 
     private int keyCount = 0;
     private int score = 0;
@@ -35,6 +36,11 @@ public class ScoreManager : MonoBehaviour
         chainTextHorizontal.gameObject.SetActive(false);
         chainTextVertical.gameObject.SetActive(false);
         UpdateKeyCountText();
+
+        if (timerController == null)
+        {
+            timerController = FindObjectOfType<TimerController>();
+        }
     }
 
     private void Update()
@@ -99,6 +105,11 @@ public class ScoreManager : MonoBehaviour
         else
         {
             chainCount = 1;
+        }
+
+        if (timerController != null)
+        {
+            timerController.AddTime(chainCount * 0.5f);
         }
 
         score += amount;
