@@ -121,18 +121,7 @@ public class ScoreManager : MonoBehaviour
 
     private void SpawnNewObject()
     {
-        // ランダムなXとZ座標を計算
-        float randomX = Random.Range(objectSpawner.minX, objectSpawner.maxX);
-        float randomZ = Random.Range(objectSpawner.minZ, objectSpawner.maxZ);
-
-        // 地形の高さをXとZの位置でサンプリング
-        Terrain terrain = Terrain.activeTerrain;
-        float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
-
-        // Y座標の最小値として地形の高さを使用し、最大値としてobjectSpawner.maxYを使用してランダムな値を取得
-        float randomY = Random.Range(terrainHeight, objectSpawner.maxY);
-
-        Vector3 randomPosition = new Vector3(randomX, randomY, randomZ);
+        Vector3 randomPosition = objectSpawner.GetRandomPosition();
 
         GameObject spawnedPortal = Instantiate(Portal, randomPosition, Quaternion.identity);
         spawnedPortal.SetActive(false);
