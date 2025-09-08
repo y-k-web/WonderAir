@@ -26,7 +26,6 @@ public class ScoreManager : MonoBehaviour
     private float lastItemTime;
     public float chainTime = 0.5f;
     public float chainMultiplier = 1.25f;
-    public float chainTimeIncrease = 0.5f; // Time added per chain count
 
     private int[] scoreThresholds = { 1000, 2000, 3000, 4000 };
     private bool[] hasSpawned = { false, false, false, false };
@@ -110,7 +109,8 @@ public class ScoreManager : MonoBehaviour
 
         if (timerController != null)
         {
-            timerController.AddTime(chainCount * chainTimeIncrease);
+            int chainSeconds = chainCount >= 2 ? chainCount - 1 : 0; // 3 chain -> +3 seconds
+            timerController.AddTime(chainSeconds);
         }
 
         score += amount;
