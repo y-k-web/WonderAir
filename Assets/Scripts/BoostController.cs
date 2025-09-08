@@ -161,12 +161,16 @@ public class BoostController : MonoBehaviour
         if (leftHandParticle != null)
         {
             var main = leftHandParticle.main;
-            main.startColor = leftColor;
+            main.startColor = new ParticleSystem.MinMaxGradient(leftColor);
+            leftHandParticle.Clear();
+            leftHandParticle.Play();
         }
         if (rightHandParticle != null)
         {
             var main = rightHandParticle.main;
-            main.startColor = rightColor;
+            main.startColor = new ParticleSystem.MinMaxGradient(rightColor);
+            rightHandParticle.Clear();
+            rightHandParticle.Play();
         }
     }
 
