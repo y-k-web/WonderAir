@@ -9,13 +9,6 @@
             public float spawnRadius = 0.5f; // 半径のコリジョンチェック
             public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
 
-            private float minX;
-            private float maxX;
-            private float minY;
-            private float maxY;
-            private float minZ; // 最小Z座標
-            private float maxZ; // 最大Z座標
-
             private int objectsCollected = 0;
             private int currentKeyIndex = 0; // 現在のKeyのインデックス
 
@@ -30,17 +23,7 @@
                     }
                 }
 
-                if (boundary != null)
-                {
-                    Bounds bounds = boundary.bounds;
-                    minX = bounds.min.x;
-                    maxX = bounds.max.x;
-                    minY = bounds.min.y;
-                    maxY = bounds.max.y;
-                    minZ = bounds.min.z;
-                    maxZ = bounds.max.z;
-                }
-                else
+                if (boundary == null)
                 {
                     Debug.LogError("Boundary not set for ObjectSpawner.");
                 }
@@ -56,12 +39,16 @@
 
                 const int maxAttempts = 20;
                 Vector3 candidate = Vector3.zero;
+                Vector3 center = boundary.center;
+                Vector3 size = boundary.size;
                 for (int i = 0; i < maxAttempts; i++)
                 {
-                    float randomX = Random.Range(minX, maxX);
-                    float randomY = Random.Range(minY, maxY);
-                    float randomZ = Random.Range(minZ, maxZ);
-                    candidate = new Vector3(randomX, randomY, randomZ);
+                    Vector3 localOffset = new Vector3(
+                        Random.Range(-size.x * 0.5f, size.x * 0.5f),
+                        Random.Range(-size.y * 0.5f, size.y * 0.5f),
+                        Random.Range(-size.z * 0.5f, size.z * 0.5f)
+                    );
+                    candidate = boundary.transform.TransformPoint(center + localOffset);
 
                     if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers))
                     {
