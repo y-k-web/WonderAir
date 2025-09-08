@@ -6,6 +6,8 @@
         {
             public GameObject[] keyPrefabs; // 4つのKeyのプレハブを格納する配列
             public BoxCollider boundary; // スポーン範囲を定義するBoundary
+            public float spawnRadius = 0.5f; // 半径のコリジョンチェック
+            public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
 
             private float minX;
             private float maxX;
@@ -52,21 +54,23 @@
                     return Vector3.zero;
                 }
 
-                float randomX = Random.Range(minX, maxX);
-                float randomZ = Random.Range(minZ, maxZ);
-
-                // 地形の高さをXとZの位置でサンプリング（Terrain が存在する場合のみ）
-                Terrain terrain = Terrain.activeTerrain;
-                float minYAdjusted = minY;
-                if (terrain != null)
+                const int maxAttempts = 20;
+                Vector3 candidate = Vector3.zero;
+                for (int i = 0; i < maxAttempts; i++)
                 {
-                    float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
-                    minYAdjusted = Mathf.Max(minY, terrainHeight);
+                    float randomX = Random.Range(minX, maxX);
+                    float randomY = Random.Range(minY, maxY);
+                    float randomZ = Random.Range(minZ, maxZ);
+                    candidate = new Vector3(randomX, randomY, randomZ);
+
+                    if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers))
+                    {
+                        return candidate;
+                    }
                 }
 
-                float randomY = Random.Range(minYAdjusted, maxY);
-
-                return new Vector3(randomX, randomY, randomZ);
+                Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning last candidate: {candidate}");
+                return candidate;
         }
 
             public void SpawnObject()
