@@ -47,6 +47,13 @@ public class ScoreManager : MonoBehaviour
     {
         if (Time.time > lastItemTime + chainTime)
         {
+            if (chainCount >= 2 && timerController != null)
+            {
+                int chainSeconds = chainCount; // チェイン数分加算
+                timerController.AddTime(chainSeconds);
+            }
+
+            chainCount = 0;
             chainTextHorizontal.gameObject.SetActive(false);
             chainTextVertical.gameObject.SetActive(false);
         }
@@ -107,12 +114,6 @@ public class ScoreManager : MonoBehaviour
             chainCount = 1;
         }
 
-        if (timerController != null)
-        {
-            int chainSeconds = chainCount >= 2 ? chainCount - 1 : 0; // 3 chain -> +3 seconds
-            timerController.AddTime(chainSeconds);
-        }
-
         score += amount;
         UpdateScoreText();
         UpdateChainText();
@@ -127,8 +128,8 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateChainText()
     {
-        chainTextVertical.text = (chainCount >= 2 ? chainCount - 1 : 0) + "Chain!";
-        chainTextHorizontal.text = (chainCount >= 2 ? chainCount - 1 : 0) + "Chain!";
+        chainTextVertical.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
+        chainTextHorizontal.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
     }
 
     private void SpawnNewObject()
