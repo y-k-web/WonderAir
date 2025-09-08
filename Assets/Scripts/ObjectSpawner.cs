@@ -6,13 +6,8 @@
         {
             public GameObject[] keyPrefabs; // 4つのKeyのプレハブを格納する配列
             public BoxCollider boundary; // スポーン範囲を定義するBoundary
-
-            private float minX;
-            private float maxX;
-            private float minY;
-            private float maxY;
-            private float minZ; // 最小Z座標
-            private float maxZ; // 最大Z座標
+            public float spawnRadius = 0.5f; // 半径のコリジョンチェック
+            public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
 
             private int objectsCollected = 0;
             private int currentKeyIndex = 0; // 現在のKeyのインデックス
@@ -28,17 +23,7 @@
                     }
                 }
 
-                if (boundary != null)
-                {
-                    Bounds bounds = boundary.bounds;
-                    minX = bounds.min.x;
-                    maxX = bounds.max.x;
-                    minY = bounds.min.y;
-                    maxY = bounds.max.y;
-                    minZ = bounds.min.z;
-                    maxZ = bounds.max.z;
-                }
-                else
+                if (boundary == null)
                 {
                     Debug.LogError("Boundary not set for ObjectSpawner.");
                 }
@@ -52,21 +37,27 @@
                     return Vector3.zero;
                 }
 
-                float randomX = Random.Range(minX, maxX);
-                float randomZ = Random.Range(minZ, maxZ);
-
-                // 地形の高さをXとZの位置でサンプリング（Terrain が存在する場合のみ）
-                Terrain terrain = Terrain.activeTerrain;
-                float minYAdjusted = minY;
-                if (terrain != null)
+                const int maxAttempts = 20;
+                Vector3 candidate = Vector3.zero;
+                Vector3 center = boundary.center;
+                Vector3 size = boundary.size;
+                for (int i = 0; i < maxAttempts; i++)
                 {
-                    float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
-                    minYAdjusted = Mathf.Max(minY, terrainHeight);
+                    Vector3 localOffset = new Vector3(
+                        Random.Range(-size.x * 0.5f, size.x * 0.5f),
+                        Random.Range(-size.y * 0.5f, size.y * 0.5f),
+                        Random.Range(-size.z * 0.5f, size.z * 0.5f)
+                    );
+                    candidate = boundary.transform.TransformPoint(center + localOffset);
+
+                    if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers))
+                    {
+                        return candidate;
+                    }
                 }
 
-                float randomY = Random.Range(minYAdjusted, maxY);
-
-                return new Vector3(randomX, randomY, randomZ);
+                Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning last candidate: {candidate}");
+                return candidate;
         }
 
             public void SpawnObject()

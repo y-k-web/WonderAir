@@ -5290,7 +5290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab74a9961d3c01c48ad6c05a22f2afb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerController: {fileID: 0}
+  timerController: {fileID: 1984864535}
 --- !u!65 &308398863
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -56282,7 +56282,11 @@ MonoBehaviour:
   - {fileID: 195601528}
   - {fileID: 1763385226}
   - {fileID: 615268679}
-  boundary: {fileID: 0}
+  boundary: {fileID: 666989922}
+  spawnRadius: 0.5
+  blockingLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1001 &2104912304
 PrefabInstance:
   m_ObjectHideFlags: 0
