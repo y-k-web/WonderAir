@@ -13,11 +13,16 @@ public class BoostController : MonoBehaviour
     public Button boostButtonVertical;   // 縦画面用のブーストボタン
     public Button boostButtonHorizontal; // 横画面用のブーストボタン
 
+    public ParticleSystem leftHandParticle;  // 左手のパーティクル
+    public ParticleSystem rightHandParticle; // 右手のパーティクル
+
     private bool isBoosting = false;  // ブーストが有効かどうか
     private float currentBoost;       // 現在のブースト量
 
     private RageRunGames.EasyFlyingSystem.DroneController droneController; // ドローン制御用の参照
     private float originalMaxSpeed;   // 初期の最大速度を保存
+    private Color leftOriginalColor;   // 左手パーティクルの元の色
+    private Color rightOriginalColor;  // 右手パーティクルの元の色
 
     void Awake()
     {
@@ -47,6 +52,15 @@ public class BoostController : MonoBehaviour
         {
             UIHandler.Instance.RegisterOrientationObjects(boostBarVertical?.gameObject, boostBarHorizontal?.gameObject);
             UIHandler.Instance.RegisterOrientationObjects(boostButtonVertical?.gameObject, boostButtonHorizontal?.gameObject);
+        }
+
+        if (leftHandParticle != null)
+        {
+            leftOriginalColor = leftHandParticle.main.startColor.color;
+        }
+        if (rightHandParticle != null)
+        {
+            rightOriginalColor = rightHandParticle.main.startColor.color;
         }
     }
 
@@ -112,12 +126,14 @@ public class BoostController : MonoBehaviour
     {
         isBoosting = true;
         UpdateButtonColor();
+        SetParticleColor(Color.yellow, Color.yellow);
     }
 
     private void DisableBoost()
     {
         isBoosting = false;
         UpdateButtonColor();
+        SetParticleColor(leftOriginalColor, rightOriginalColor);
     }
 
     private void UpdateBoostUI()
@@ -144,6 +160,20 @@ public class BoostController : MonoBehaviour
         if (boostButtonHorizontal != null)
         {
             boostButtonHorizontal.GetComponent<Image>().color = targetColor;
+        }
+    }
+
+    private void SetParticleColor(Color leftColor, Color rightColor)
+    {
+        if (leftHandParticle != null)
+        {
+            var main = leftHandParticle.main;
+            main.startColor = leftColor;
+        }
+        if (rightHandParticle != null)
+        {
+            var main = rightHandParticle.main;
+            main.startColor = rightColor;
         }
     }
 
