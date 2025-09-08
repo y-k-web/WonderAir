@@ -17,6 +17,7 @@ public class ScoreManager : MonoBehaviour
     public GameObject Portal;
     public GameObject ItemSet;
     public ObjectSpawner objectSpawner;
+    [SerializeField] private BoxCollider boundaryCollider;
 
     private int keyCount = 0;
     private int score = 0;
@@ -28,6 +29,18 @@ public class ScoreManager : MonoBehaviour
 
     private int[] scoreThresholds = { 1000, 2000, 3000, 4000 };
     private bool[] hasSpawned = { false, false, false, false };
+
+    private void Awake()
+    {
+        if (boundaryCollider == null)
+        {
+            GameObject boundaryObj = GameObject.FindGameObjectWithTag("boundary");
+            if (boundaryObj != null)
+            {
+                boundaryCollider = boundaryObj.GetComponent<BoxCollider>();
+            }
+        }
+    }
 
     private void Start()
     {
@@ -121,16 +134,19 @@ public class ScoreManager : MonoBehaviour
 
     private void SpawnNewObject()
     {
+        Bounds bounds = boundaryCollider.bounds;
+
         // ランダムなXとZ座標を計算
-        float randomX = Random.Range(objectSpawner.minX, objectSpawner.maxX);
-        float randomZ = Random.Range(objectSpawner.minZ, objectSpawner.maxZ);
+        float randomX = Random.Range(bounds.min.x, bounds.max.x);
+        float randomZ = Random.Range(bounds.min.z, bounds.max.z);
 
         // 地形の高さをXとZの位置でサンプリング
         Terrain terrain = Terrain.activeTerrain;
         float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
 
-        // Y座標の最小値として地形の高さを使用し、最大値としてobjectSpawner.maxYを使用してランダムな値を取得
-        float randomY = Random.Range(terrainHeight, objectSpawner.maxY);
+        // Y座標の最小値として地形の高さを使用し、最大値としてboundaryの上限を使用
+        float minY = Mathf.Max(bounds.min.y, terrainHeight);
+        float randomY = Random.Range(minY, bounds.max.y);
 
         Vector3 randomPosition = new Vector3(randomX, randomY, randomZ);
 
