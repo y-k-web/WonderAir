@@ -66,17 +66,10 @@ public class BoostController : MonoBehaviour
 
     void Update()
     {
-        // For debugging: allow boosting with the space key
-        if (Input.GetKey(KeyCode.Space))
+        // For debugging: toggle boosting with the space key
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (!isBoosting && currentBoost > 0)
-            {
-                EnableBoost();
-            }
-        }
-        else if (isBoosting)
-        {
-            DisableBoost();
+            ToggleBoost();
         }
 
         if (isBoosting && currentBoost > 0)
