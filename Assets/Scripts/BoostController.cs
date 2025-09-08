@@ -15,6 +15,8 @@ public class BoostController : MonoBehaviour
 
     public ParticleSystem leftHandParticle;  // 左手のパーティクル
     public ParticleSystem rightHandParticle; // 右手のパーティクル
+    public TrailRenderer leftTrail;          // 左手のトレイル
+    public TrailRenderer rightTrail;         // 右手のトレイル
 
     private bool isBoosting = false;  // ブーストが有効かどうか
     private float currentBoost;       // 現在のブースト量
@@ -62,6 +64,9 @@ public class BoostController : MonoBehaviour
         {
             rightOriginalColor = rightHandParticle.main.startColor.color;
         }
+
+        // トレイルの初期色を白に設定
+        SetTrailColor(Color.white, Color.white);
     }
 
     void Update()
@@ -120,6 +125,7 @@ public class BoostController : MonoBehaviour
         isBoosting = true;
         UpdateButtonColor();
         SetParticleColor(Color.yellow, Color.yellow);
+        SetTrailColor(Color.yellow, Color.yellow);
     }
 
     private void DisableBoost()
@@ -127,6 +133,7 @@ public class BoostController : MonoBehaviour
         isBoosting = false;
         UpdateButtonColor();
         SetParticleColor(leftOriginalColor, rightOriginalColor);
+        SetTrailColor(Color.white, Color.white);
     }
 
     private void UpdateBoostUI()
@@ -167,6 +174,18 @@ public class BoostController : MonoBehaviour
         {
             var main = rightHandParticle.main;
             main.startColor = rightColor;
+        }
+    }
+
+    private void SetTrailColor(Color leftColor, Color rightColor)
+    {
+        if (leftTrail != null)
+        {
+            leftTrail.startColor = leftColor;
+        }
+        if (rightTrail != null)
+        {
+            rightTrail.startColor = rightColor;
         }
     }
 
