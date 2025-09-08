@@ -44,21 +44,30 @@
                 }
             }
 
-            public Vector3 GetRandomPosition()
-            {
+        public Vector3 GetRandomPosition()
+        {
+                if (boundary == null)
+                {
+                    Debug.LogError("Boundary not set for ObjectSpawner.");
+                    return Vector3.zero;
+                }
+
                 float randomX = Random.Range(minX, maxX);
                 float randomZ = Random.Range(minZ, maxZ);
 
-                // 地形の高さをXとZの位置でサンプリング
+                // 地形の高さをXとZの位置でサンプリング（Terrain が存在する場合のみ）
                 Terrain terrain = Terrain.activeTerrain;
-                float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
+                float minYAdjusted = minY;
+                if (terrain != null)
+                {
+                    float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
+                    minYAdjusted = Mathf.Max(minY, terrainHeight);
+                }
 
-                // Y座標の最小値として地形の高さと境界の最小値の高い方を使用
-                float minYAdjusted = Mathf.Max(minY, terrainHeight);
                 float randomY = Random.Range(minYAdjusted, maxY);
 
                 return new Vector3(randomX, randomY, randomZ);
-            }
+        }
 
             public void SpawnObject()
             {
