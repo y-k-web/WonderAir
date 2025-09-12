@@ -4,38 +4,37 @@ namespace RageRunGames.EasyFlyingSystem
 {
     public class BaseFlyController : MonoBehaviour
     {
-        [Header("Engine Settings")]
+        [Header("Engine Settings")] 
         [SerializeField] public float maxSpeed = 20;
         [SerializeField] protected bool autoForwardMovement;
-
-        [Header("Controller Settings")]
+        
+        [Header("Controller Settings")] 
         [SerializeField] protected float pitchAmount = 30f;
         [SerializeField] protected float rollAmount = 30f;
         [SerializeField] protected float yawAmount = 4f;
-
+        
         [SerializeField] protected float rotationLerpSpeed = 2f;
-
-        [Header("Rotation Settings")]
+        
+        [Header("Rotation Settings")] 
         [SerializeField] protected bool disableYaw;
         [SerializeField] protected bool disablePitch;
         [SerializeField] protected bool disableRoll;
-
-        [Header("Rotation Limits")]
-        [SerializeField] protected bool ignoreRotationLimits;
+        
+        [Header("Rotation Limits")] 
+        [SerializeField] protected bool ignoreRotationLimits; 
         [SerializeField] protected Vector2 pitchRotationLimit = new Vector2(-30f, 30f);
         [SerializeField] protected Vector2 rollRotationLimit = new Vector2(-30f, 30f);
-        [SerializeField] float returnSpeed = 2f;    // Yawを戻す速度
 
         protected Rigidbody rb;
         public Rigidbody Rb => rb;
-
+        
         public IInputHandler InputHandler { get; protected set; }
-
+        
         protected float currentPitch;
         protected float currentRoll;
         protected float currentYaw;
         protected float yaw;
-
+        
         private void Start()
         {
             Initialize();
@@ -65,7 +64,7 @@ namespace RageRunGames.EasyFlyingSystem
 
             InputHandler = GetComponent<IInputHandler>();
         }
-
+        
         protected virtual void Update()
         {
             InputHandler.HandleInputs();
@@ -81,19 +80,12 @@ namespace RageRunGames.EasyFlyingSystem
         {
             UpdateMovement(InputHandler);
         }
-
-
+        
         protected virtual void HandleRotations()
         {
             float pitch = InputHandler.Pitch * pitchAmount;
             float roll = -InputHandler.Roll * rollAmount;
-            float yawInput = InputHandler.Yaw;
-
-            // Yaw入力がある時だけ加算し、無い時は徐々に0へ戻す
-            if (Mathf.Abs(yawInput) > 0.01f)
-                yaw += yawInput * yawAmount;
-            else
-                yaw = Mathf.MoveTowards(yaw, 0f, returnSpeed * Time.fixedDeltaTime);
+            yaw += InputHandler.Yaw * yawAmount;
 
             currentPitch = disablePitch ? 0f : SmoothLerpValue(currentPitch, pitch, rotationLerpSpeed);
             currentRoll = disableRoll ? 0f : SmoothLerpValue(currentRoll, roll, rotationLerpSpeed);
@@ -104,15 +96,12 @@ namespace RageRunGames.EasyFlyingSystem
                 currentPitch = Mathf.Clamp(currentPitch, pitchRotationLimit.x, pitchRotationLimit.y);
                 currentRoll = Mathf.Clamp(currentRoll, rollRotationLimit.x, rollRotationLimit.y);
             }
-
-            rb.MoveRotation(Quaternion.Euler(currentPitch, currentYaw, currentRoll));
         }
-
-
+        
 
         protected virtual void UpdateMovement(IInputHandler inputHandler)
         {
-
+          
         }
 
         protected float SmoothLerpValue(float final, float current, float lerpSpeed)

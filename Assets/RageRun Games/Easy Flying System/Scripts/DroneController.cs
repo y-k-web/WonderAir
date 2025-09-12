@@ -62,11 +62,6 @@ namespace RageRunGames.EasyFlyingSystem
                 rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, decelSpeedOnGround * Time.deltaTime);
             }
         }
-        void OnCollisionEnter(Collision collision)
-{
-    rb.angularVelocity = Vector3.zero;
-}
-
 
         protected override void HandleRotations()
         {

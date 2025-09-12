@@ -4,7 +4,6 @@ public class KeyCollector : MonoBehaviour
 {
     [SerializeField] private TimerController timerController;
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private float keyTimeBonus = 60f; // Time added when a key is collected
 
     private void Awake()
     {
@@ -25,7 +24,7 @@ public class KeyCollector : MonoBehaviour
         {
             if (timerController != null)
             {
-                timerController.AddTime(keyTimeBonus);  // タイマーにx秒を追加
+                timerController.AddTime(60f);  // タイマーにx秒を追加
             }
 
             if (scoreManager != null)
