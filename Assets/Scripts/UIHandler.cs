@@ -47,7 +47,8 @@ public class UIHandler : MonoBehaviour
     public bool IsPortrait()
     {
         return Screen.orientation == ScreenOrientation.Portrait ||
-               Screen.orientation == ScreenOrientation.PortraitUpsideDown;
+               Screen.orientation == ScreenOrientation.PortraitUpsideDown ||
+               Screen.height > Screen.width;
     }
 
     private struct OrientationPair
