@@ -24543,6 +24543,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 254918991797738189, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
+      propertyPath: returnSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 254918991797738189, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: descentSpeed
       value: 0.2
       objectReference: {fileID: 0}
@@ -24612,7 +24616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1818581055247635801, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: m_Drag
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1922408452767449583, guid: 965301df55c249b4698e9baa47b54e24, type: 3}
       propertyPath: m_RootOrder
