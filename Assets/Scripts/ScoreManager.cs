@@ -17,6 +17,7 @@ public class ScoreManager : MonoBehaviour
     public GameObject Portal;
     public GameObject ItemSet;
     public ObjectSpawner objectSpawner;
+    [SerializeField] private TimerController timerController; // タイマー制御
 
     private int keyCount = 0;
     private int score = 0;
@@ -35,12 +36,24 @@ public class ScoreManager : MonoBehaviour
         chainTextHorizontal.gameObject.SetActive(false);
         chainTextVertical.gameObject.SetActive(false);
         UpdateKeyCountText();
+
+        if (timerController == null)
+        {
+            timerController = FindObjectOfType<TimerController>();
+        }
     }
 
     private void Update()
     {
         if (Time.time > lastItemTime + chainTime)
         {
+            if (chainCount >= 2 && timerController != null)
+            {
+                int chainSeconds = chainCount; // チェイン数分加算
+                timerController.AddTime(chainSeconds);
+            }
+
+            chainCount = 0;
             chainTextHorizontal.gameObject.SetActive(false);
             chainTextVertical.gameObject.SetActive(false);
         }
@@ -115,24 +128,13 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateChainText()
     {
-        chainTextVertical.text = (chainCount >= 2 ? chainCount - 1 : 0) + "Chain!";
-        chainTextHorizontal.text = (chainCount >= 2 ? chainCount - 1 : 0) + "Chain!";
+        chainTextVertical.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
+        chainTextHorizontal.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
     }
 
     private void SpawnNewObject()
     {
-        // ランダムなXとZ座標を計算
-        float randomX = Random.Range(objectSpawner.minX, objectSpawner.maxX);
-        float randomZ = Random.Range(objectSpawner.minZ, objectSpawner.maxZ);
-
-        // 地形の高さをXとZの位置でサンプリング
-        Terrain terrain = Terrain.activeTerrain;
-        float terrainHeight = terrain.SampleHeight(new Vector3(randomX, 0, randomZ));
-
-        // Y座標の最小値として地形の高さを使用し、最大値としてobjectSpawner.maxYを使用してランダムな値を取得
-        float randomY = Random.Range(terrainHeight, objectSpawner.maxY);
-
-        Vector3 randomPosition = new Vector3(randomX, randomY, randomZ);
+        Vector3 randomPosition = objectSpawner.GetRandomPosition();
 
         GameObject spawnedPortal = Instantiate(Portal, randomPosition, Quaternion.identity);
         spawnedPortal.SetActive(false);
