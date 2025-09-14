@@ -55862,7 +55862,7 @@ MonoBehaviour:
   chainMultiplier: 1.25
   bgmVolume: 0.5
   bgmStartTime: 2
-  sfxVolume: 1
+  sfxVolume: 0.5
 --- !u!114 &1984864535
 MonoBehaviour:
   m_ObjectHideFlags: 0
