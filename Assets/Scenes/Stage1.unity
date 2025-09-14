@@ -55860,6 +55860,9 @@ MonoBehaviour:
   timerController: {fileID: 0}
   chainTime: 2
   chainMultiplier: 1.25
+  bgmVolume: 0.5
+  bgmStartTime: 2
+  sfxVolume: 1
 --- !u!114 &1984864535
 MonoBehaviour:
   m_ObjectHideFlags: 0
