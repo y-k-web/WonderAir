@@ -227,7 +227,7 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        int index = Mathf.Clamp(chainCount - 1, 0, chainClips.Length - 1);
+        int index = Random.Range(0, chainClips.Length);
         AudioClip clip = chainClips[index];
         if (clip != null)
         {
