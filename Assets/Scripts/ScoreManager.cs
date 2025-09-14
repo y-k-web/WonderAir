@@ -35,6 +35,10 @@ public class ScoreManager : MonoBehaviour
     private AudioSource sfxSource;
     private AudioClip[] chainClips;
 
+    [SerializeField, Range(0f, 1f)] private float bgmVolume = 1f;
+    [SerializeField] private float bgmStartTime = 0f;
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
+
     private void Start()
     {
         lastItemTime = -chainTime;
@@ -181,6 +185,8 @@ public class ScoreManager : MonoBehaviour
         {
             bgmSource.clip = bgm;
             bgmSource.loop = true;
+            bgmSource.volume = bgmVolume;
+            bgmSource.time = Mathf.Clamp(bgmStartTime, 0f, bgm.length);
             bgmSource.Play();
         }
 
@@ -203,7 +209,7 @@ public class ScoreManager : MonoBehaviour
         AudioClip clip = chainClips[index];
         if (clip != null)
         {
-            sfxSource.PlayOneShot(clip);
+            sfxSource.PlayOneShot(clip, sfxVolume);
         }
     }
 }
