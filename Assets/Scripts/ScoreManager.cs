@@ -34,7 +34,7 @@ public class ScoreManager : MonoBehaviour
     private AudioSource bgmSource;
     private AudioSource sfxSource;
     private AudioClip[] chainClips;
-    private AudioClip currentChainClip;
+    private AudioClip lastPickupClip;
 
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 1f;
     [SerializeField] private float bgmStartTime = 0f;
@@ -68,7 +68,6 @@ public class ScoreManager : MonoBehaviour
             chainCount = 0;
             chainTextHorizontal.gameObject.SetActive(false);
             chainTextVertical.gameObject.SetActive(false);
-            currentChainClip = null;
         }
 
         // スコアが閾値を超える場合にオブジェクトをスポーン
@@ -207,15 +206,20 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        if (chainCount <= 1 || currentChainClip == null)
+        if (chainCount > 1)
         {
             int index = Random.Range(0, chainClips.Length);
-            currentChainClip = chainClips[index];
+            lastPickupClip = chainClips[index];
+        }
+        else if (lastPickupClip == null)
+        {
+            int index = Random.Range(0, chainClips.Length);
+            lastPickupClip = chainClips[index];
         }
 
-        if (currentChainClip != null)
+        if (lastPickupClip != null)
         {
-            sfxSource.PlayOneShot(currentChainClip, sfxVolume);
+            sfxSource.PlayOneShot(lastPickupClip, sfxVolume);
         }
     }
 }
