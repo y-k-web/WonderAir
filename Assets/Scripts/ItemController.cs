@@ -51,7 +51,8 @@ public class ItemController : MonoBehaviour
             isShrinking = true;
             if (scoreManager != null)
             {
-                scoreManager.AddScore(ringScore);
+                bool isRing = this.CompareTag("Ring");
+                scoreManager.AddScore(ringScore, isRing);
             }
 
             BoostController boostController = other.GetComponent<BoostController>();
