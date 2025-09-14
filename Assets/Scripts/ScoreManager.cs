@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -30,6 +31,20 @@ public class ScoreManager : MonoBehaviour
     private int[] scoreThresholds = { 1000, 2000, 3000, 4000 };
     private bool[] hasSpawned = { false, false, false, false };
 
+    private AudioSource bgmSource;
+    private AudioSource sfxSource;
+    private AudioClip[] chainClips;
+
+    [SerializeField, Range(0f, 1f)] private float bgmVolume = 1f;
+    [SerializeField] private float bgmStartTime = 0f;
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
+    [SerializeField] private float bgmFadeInTime = 1f;
+    [SerializeField, Range(0f, 1f)] private float duckVolume = 0.7f;
+    [SerializeField] private float duckFadeTime = 0.1f;
+    [SerializeField] private float duckDuration = 0.3f;
+
+    private Coroutine duckRoutine;
+
     private void Start()
     {
         lastItemTime = -chainTime;
@@ -41,6 +56,8 @@ public class ScoreManager : MonoBehaviour
         {
             timerController = FindObjectOfType<TimerController>();
         }
+
+        InitializeAudio();
     }
 
     private void Update()
@@ -95,7 +112,7 @@ public class ScoreManager : MonoBehaviour
         keyCountTextHorizontal.text = "Key:" + keyCount;
     }
 
-    public void AddScore(int amount)
+    public void AddScore(int amount, bool playSound)
     {
         float timeSinceLastItem = Time.time - lastItemTime;
 
@@ -112,6 +129,11 @@ public class ScoreManager : MonoBehaviour
         else
         {
             chainCount = 1;
+        }
+
+        if (playSound)
+        {
+            PlayChainSound();
         }
 
         score += amount;
@@ -152,5 +174,92 @@ public class ScoreManager : MonoBehaviour
         string result = "Score: " + score;
         scoreResultVertical.text = result;
         scoreResultHorizontal.text = result;
+    }
+
+    private void InitializeAudio()
+    {
+        if (SceneManager.GetActiveScene().name != "Stage1")
+        {
+            return;
+        }
+
+        bgmSource = gameObject.AddComponent<AudioSource>();
+        sfxSource = gameObject.AddComponent<AudioSource>();
+        bgmSource.playOnAwake = false;
+        sfxSource.playOnAwake = false;
+        bgmSource.spatialBlend = 0f;
+        sfxSource.spatialBlend = 0f;
+
+        AudioClip bgm = Resources.Load<AudioClip>("Sounds/Sky Parade");
+        if (bgm != null)
+        {
+            bgmSource.clip = bgm;
+            bgmSource.loop = true;
+            bgmSource.volume = 0f;
+            bgmSource.time = Mathf.Clamp(bgmStartTime, 0f, bgm.length);
+            bgmSource.Play();
+            StartCoroutine(FadeInBgm());
+        }
+
+        string[] names = { "one", "two", "three", "four", "five", "six" };
+        chainClips = new AudioClip[names.Length];
+        for (int i = 0; i < names.Length; i++)
+        {
+            chainClips[i] = Resources.Load<AudioClip>("Sounds/" + names[i]);
+        }
+    }
+    private IEnumerator FadeInBgm()
+    {
+        float elapsed = 0f;
+        while (elapsed < bgmFadeInTime)
+        {
+            elapsed += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(0f, bgmVolume, elapsed / bgmFadeInTime);
+            yield return null;
+        }
+        bgmSource.volume = bgmVolume;
+    }
+
+    private void PlayChainSound()
+    {
+        if (sfxSource == null || chainClips == null || chainClips.Length == 0)
+        {
+            return;
+        }
+
+        int index = Mathf.Clamp(chainCount - 1, 0, chainClips.Length - 1);
+        AudioClip clip = chainClips[index];
+        if (clip != null)
+        {
+            sfxSource.PlayOneShot(clip, sfxVolume);
+            if (duckRoutine != null)
+            {
+                StopCoroutine(duckRoutine);
+            }
+            duckRoutine = StartCoroutine(DuckBgm());
+        }
+    }
+
+    private IEnumerator DuckBgm()
+    {
+        float target = bgmVolume * duckVolume;
+        float startVol = bgmSource.volume;
+        float t = 0f;
+        while (t < duckFadeTime)
+        {
+            t += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(startVol, target, t / duckFadeTime);
+            yield return null;
+        }
+        bgmSource.volume = target;
+        yield return new WaitForSeconds(duckDuration);
+        t = 0f;
+        while (t < duckFadeTime)
+        {
+            t += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(target, bgmVolume, t / duckFadeTime);
+            yield return null;
+        }
+        bgmSource.volume = bgmVolume;
     }
 }

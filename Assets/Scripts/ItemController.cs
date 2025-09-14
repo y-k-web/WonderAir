@@ -51,7 +51,8 @@ public class ItemController : MonoBehaviour
             isShrinking = true;
             if (scoreManager != null)
             {
-                scoreManager.AddScore(ringScore);
+                bool playSound = this.CompareTag("Ring") || this.CompareTag("Gem");
+                scoreManager.AddScore(ringScore, playSound);
             }
 
             BoostController boostController = other.GetComponent<BoostController>();
