@@ -7195,7 +7195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerController: {fileID: 0}
   scoreManager: {fileID: 0}
-  keyTimeBonus: 60
+  keyTimeBonus: 30
 --- !u!1 &464164385 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1015780934767744, guid: a37573ad5d3fb7a47997aadbf0976202, type: 3}
@@ -50832,7 +50832,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerController: {fileID: 0}
   scoreManager: {fileID: 0}
-  keyTimeBonus: 60
+  keyTimeBonus: 30
 --- !u!1 &1765348006 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6151688812392996543, guid: fadfd29ff30843246984580a4578ea6e, type: 3}
@@ -54608,7 +54608,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerController: {fileID: 0}
   scoreManager: {fileID: 0}
-  keyTimeBonus: 60
+  keyTimeBonus: 30
 --- !u!1001 &1932792480
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55132,7 +55132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerController: {fileID: 0}
   scoreManager: {fileID: 0}
-  keyTimeBonus: 60
+  keyTimeBonus: 30
 --- !u!1001 &1960527071
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55860,7 +55860,7 @@ MonoBehaviour:
   timerController: {fileID: 0}
   chainTime: 2
   chainMultiplier: 1.25
-  bgmVolume: 0.5
+  bgmVolume: 0.25
   bgmStartTime: 2
   sfxVolume: 0.5
 --- !u!114 &1984864535
