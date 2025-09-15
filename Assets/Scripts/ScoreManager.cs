@@ -34,6 +34,7 @@ public class ScoreManager : MonoBehaviour
     private AudioSource bgmSource;
     private AudioSource sfxSource;
     private AudioClip[] chainClips;
+    private AudioClip lastPickupClip;
 
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 1f;
     [SerializeField] private float bgmStartTime = 0f;
@@ -205,11 +206,20 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        int index = Mathf.Clamp(chainCount - 1, 0, chainClips.Length - 1);
-        AudioClip clip = chainClips[index];
-        if (clip != null)
+        if (chainCount > 1)
         {
-            sfxSource.PlayOneShot(clip, sfxVolume);
+            int index = Random.Range(0, chainClips.Length);
+            lastPickupClip = chainClips[index];
+        }
+        else if (lastPickupClip == null)
+        {
+            int index = Random.Range(0, chainClips.Length);
+            lastPickupClip = chainClips[index];
+        }
+
+        if (lastPickupClip != null)
+        {
+            sfxSource.PlayOneShot(lastPickupClip, sfxVolume);
         }
     }
 }
