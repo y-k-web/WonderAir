@@ -94,7 +94,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4874126678125670354, guid: f9d6154f27eca784389de83e5af3c060, type: 3}
+  - {fileID: 2100000, guid: db06a10993cfc6c42a13cc21c1172b19, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,6 +127,7 @@ GameObject:
   - component: {fileID: 5503222519448448874}
   - component: {fileID: 5504885698898523739}
   - component: {fileID: 5768106117961975549}
+  - component: {fileID: 2264934267433644699}
   m_Layer: 0
   m_Name: Floating_Land_B
   m_TagString: Untagged
@@ -177,7 +178,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4874126678125670354, guid: f9d6154f27eca784389de83e5af3c060, type: 3}
+  - {fileID: 2100000, guid: a2573e6f1433e934ca2cf5927820d783, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -199,3 +200,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2264934267433644699
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8602579309957045434}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6313295670192060432, guid: f9d6154f27eca784389de83e5af3c060, type: 3}

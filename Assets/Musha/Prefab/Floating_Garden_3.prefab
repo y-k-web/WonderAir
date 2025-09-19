@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9163509175010711533}
   - component: {fileID: 8892871456153872495}
   - component: {fileID: 8612884139736432840}
+  - component: {fileID: 2029665635890996300}
   m_Layer: 0
   m_Name: Floating_Land_3
   m_TagString: Untagged
@@ -61,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4874126678125670354, guid: f9d6154f27eca784389de83e5af3c060, type: 3}
+  - {fileID: 2100000, guid: a2573e6f1433e934ca2cf5927820d783, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -83,6 +84,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2029665635890996300
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121364699716292220}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3749738503191464256, guid: f9d6154f27eca784389de83e5af3c060, type: 3}
 --- !u!1 &4994615021172888674
 GameObject:
   m_ObjectHideFlags: 0
