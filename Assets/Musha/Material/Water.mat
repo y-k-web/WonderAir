@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Water
+  m_Shader: {fileID: 4800000, guid: 77bd5f944ca9b85499f410e91ad5be9c, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Height:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 2800000, guid: b53d794891e8420419a76c411e80f9a6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OffsetNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ApparentMeanCurvature: 0.1
+    - _BaseReflection: 0.427
+    - _FallSpeed: 61.06
+    - _FarShiftSharpness: 8
+    - _FarSmoothness: 0.8
+    - _HightOffset: 0
+    - _HightOffsetPow: 0
+    - _Metallic: 0.4
+    - _NormalScale: 0.5
+    - _OffsetLevel: 0.002
+    - _OpacityNoise: 10
+    - _Refraction: 1
+    - _ScrollU: 0.03
+    - _ScrollY: 0.07
+    - _SeaLevel: -16.83
+    - _Smoothness: 1
+    - _Tilling: 0.02
+    - _UnderMetallic: 0.9
+    - __dirty: 1
+    - _farMetallic: 0.9
+    m_Colors:
+    - _UnderSeaColor: {r: 0, g: 0.10196079, b: 0.34901962, a: 1}
+    - _WaterColor: {r: 0.9386792, g: 1, b: 0.9934214, a: 0}
+  m_BuildTextureStacks: []

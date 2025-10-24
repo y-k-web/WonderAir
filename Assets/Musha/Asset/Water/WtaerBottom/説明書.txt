@@ -1,0 +1,18 @@
+SimpleWaterについて
+
+Metallic　リフレクションの上限値
+
+BaseReflection　リフレクションの下限値
+
+・上二つの値の合計が1以下に収まるよう設定することを推奨
+
+
+WaterBottomについて
+
+HitghOffset　水面のY座標
+
+Gradation　減衰と拡散色を決めるグラデーション
+
+Attenuation　減衰量
+
+Scattering　拡散光量
