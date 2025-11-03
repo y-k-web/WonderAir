@@ -63,9 +63,9 @@ namespace RageRunGames.EasyFlyingSystem
             }
         }
         void OnCollisionEnter(Collision collision)
-{
-    rb.angularVelocity = Vector3.zero;
-}
+        {
+            rb.angularVelocity = Vector3.zero;
+        }
 
 
         protected override void HandleRotations()
@@ -130,7 +130,7 @@ namespace RageRunGames.EasyFlyingSystem
             AdjustDrag(rb.velocity.magnitude);
         }
 
-                private void AdjustDrag(float speed)
+        private void AdjustDrag(float speed)
         {
             // 速度に応じて抗力を線形補間
             rb.drag = Mathf.Lerp(baseDrag, maxDrag, speed / adjDragMaxSpeed);
