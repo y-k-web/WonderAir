@@ -23,7 +23,16 @@ namespace RageRunGames.EasyFlyingSystem
         [Header("Quick Stop Settings")]
         [SerializeField] private float quickStopInputThreshold = 0.1f;
 
-        [Header("Ground Settings")] 
+        [Header("Quick Slide Settings")]
+        [SerializeField] private bool enableQuickSlide = true;
+        [SerializeField, Range(0f, 1f)] private float quickSlideActivationPitchThreshold = 0.4f;
+        [SerializeField, Range(0f, 1f)] private float quickSlideReleasePitchThreshold = 0.05f;
+        [SerializeField, Range(0f, 1f)] private float quickSlideInputThreshold = 0.25f;
+        [SerializeField] private float quickSlideWindowDuration = 0.25f;
+        [SerializeField] private float quickSlideVelocityChange = 2f;
+        [SerializeField] private float quickSlideMinForwardSpeed = 1f;
+
+        [Header("Ground Settings")]
         [SerializeField] protected float groundCheckDistance = 0.2f;
 
         [SerializeField] protected bool decelerateOnGround;
@@ -37,6 +46,9 @@ namespace RageRunGames.EasyFlyingSystem
 
 
         private float timer;
+        private float previousPitchInput;
+        private float quickSlideTimer;
+        private bool quickSlideWindowActive;
 
         private BaseInputHandler currentInputHandler;
         private BoostController boostController;
@@ -113,6 +125,8 @@ namespace RageRunGames.EasyFlyingSystem
                 disablePitch ? Vector3.zero : pitchInput * maxSpeed * transform.forward;
             float forwardSpeed = Vector3.Dot(rb.velocity, transform.forward);
 
+            HandleQuickSlide(pitchInput, inputHandler.Roll, forwardSpeed);
+
             if (!IsBoosting() &&
                 Mathf.Abs(pitchInput) >= quickStopInputThreshold &&
                 ((forwardSpeed > 0f && pitchInput < 0f) ||
@@ -143,11 +157,56 @@ namespace RageRunGames.EasyFlyingSystem
 
             rb.AddForce(forwardForce + liftForce + sidewaysForce, ForceMode.Force);
             AdjustDrag(rb.velocity.magnitude);
+            previousPitchInput = pitchInput;
         }
 
         private bool IsBoosting()
         {
             return boostController != null && boostController.IsBoosting;
+        }
+
+        private void HandleQuickSlide(float pitchInput, float rollInput, float forwardSpeed)
+        {
+            if (!enableQuickSlide)
+            {
+                quickSlideWindowActive = false;
+                quickSlideTimer = 0f;
+                return;
+            }
+
+            if (!quickSlideWindowActive)
+            {
+                bool wasMovingForward = previousPitchInput > quickSlideActivationPitchThreshold;
+                bool hasReleasedForward = Mathf.Abs(pitchInput) <= quickSlideReleasePitchThreshold;
+                bool isMovingForward = forwardSpeed > quickSlideMinForwardSpeed;
+
+                if (wasMovingForward && hasReleasedForward && isMovingForward)
+                {
+                    quickSlideWindowActive = true;
+                    quickSlideTimer = quickSlideWindowDuration;
+                }
+            }
+            else
+            {
+                quickSlideTimer -= Time.deltaTime;
+
+                if (quickSlideTimer <= 0f)
+                {
+                    quickSlideWindowActive = false;
+                }
+                else if (Mathf.Abs(rollInput) >= quickSlideInputThreshold)
+                {
+                    Vector3 slideDirection = Vector3.ProjectOnPlane(transform.right * Mathf.Sign(rollInput), Vector3.up);
+
+                    if (slideDirection.sqrMagnitude > 0f)
+                    {
+                        slideDirection.Normalize();
+                        rb.AddForce(slideDirection * quickSlideVelocityChange, ForceMode.VelocityChange);
+                    }
+
+                    quickSlideWindowActive = false;
+                }
+            }
         }
 
         private void AdjustDrag(float speed)
