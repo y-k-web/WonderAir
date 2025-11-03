@@ -136,6 +136,8 @@ public class BoostController : MonoBehaviour
         SetTrailColor(Color.white, Color.white);
     }
 
+    public bool IsBoosting => isBoosting;
+
     private void UpdateBoostUI()
     {
         float fillAmount = currentBoost / maxBoost;

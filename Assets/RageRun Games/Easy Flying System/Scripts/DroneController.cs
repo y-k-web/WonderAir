@@ -20,6 +20,9 @@ namespace RageRunGames.EasyFlyingSystem
         [Range(0, 10)] [SerializeField] protected float hoverAmplitude = 1.25f;
         [Range(0, 10)] [SerializeField] protected float hoverFrequency = 2f;
 
+        [Header("Quick Stop Settings")]
+        [SerializeField] private float quickStopInputThreshold = 0.1f;
+
         [Header("Ground Settings")] 
         [SerializeField] protected float groundCheckDistance = 0.2f;
 
@@ -36,6 +39,7 @@ namespace RageRunGames.EasyFlyingSystem
         private float timer;
 
         private BaseInputHandler currentInputHandler;
+        private BoostController boostController;
 
         public bool IsGrounded { get; private set; } = true;
 
@@ -50,6 +54,7 @@ namespace RageRunGames.EasyFlyingSystem
             }
             // 抗力の初期値を設定
             rb.drag = baseDrag;
+            boostController = GetComponent<BoostController>();
         }
 
         protected override void Update()
@@ -103,12 +108,15 @@ namespace RageRunGames.EasyFlyingSystem
 
             Vector3 liftForce = Vector3.up * upwardForce;
 
+            float pitchInput = inputHandler.Pitch;
             Vector3 forwardForce =
-                disablePitch ? Vector3.zero : inputHandler.Pitch * maxSpeed * transform.forward;
+                disablePitch ? Vector3.zero : pitchInput * maxSpeed * transform.forward;
             float forwardSpeed = Vector3.Dot(rb.velocity, transform.forward);
 
-            if ((forwardSpeed > 0f && inputHandler.Pitch < 0f) ||
-                (forwardSpeed < 0f && inputHandler.Pitch > 0f))
+            if (!IsBoosting() &&
+                Mathf.Abs(pitchInput) >= quickStopInputThreshold &&
+                ((forwardSpeed > 0f && pitchInput < 0f) ||
+                 (forwardSpeed < 0f && pitchInput > 0f)))
             {
                 rb.velocity -= Vector3.Project(rb.velocity, transform.forward);
             }
@@ -135,6 +143,11 @@ namespace RageRunGames.EasyFlyingSystem
 
             rb.AddForce(forwardForce + liftForce + sidewaysForce, ForceMode.Force);
             AdjustDrag(rb.velocity.magnitude);
+        }
+
+        private bool IsBoosting()
+        {
+            return boostController != null && boostController.IsBoosting;
         }
 
         private void AdjustDrag(float speed)
