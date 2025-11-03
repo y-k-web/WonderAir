@@ -1,92 +1,87 @@
-        using System.Collections;
-        using System.Collections.Generic;
-        using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-        public class ObjectSpawner : MonoBehaviour
+public class ObjectSpawner : MonoBehaviour
+{
+    public GameObject[] keyPrefabs; // 4つのKeyのプレハブを格納する配列
+    public BoxCollider boundary; // スポーン範囲を定義するBoundary
+    public float spawnRadius = 0.5f; // 半径のコリジョンチェック
+    public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
+
+    private int objectsCollected = 0;
+    private int currentKeyIndex = 0; // 現在のKeyのインデックス
+
+    private void Awake()
+    {
+        if (boundary == null)
         {
-            public GameObject[] keyPrefabs; // 4つのKeyのプレハブを格納する配列
-            public BoxCollider boundary; // スポーン範囲を定義するBoundary
-            public float spawnRadius = 0.5f; // 半径のコリジョンチェック
-            public float spawnHeightOffset = 0.3f; // 地面から浮かせる高さ
-            public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
-            public LayerMask surfaceLayers = ~0; // スポーン可能な地形レイヤー
-
-            private int objectsCollected = 0;
-            private int currentKeyIndex = 0; // 現在のKeyのインデックス
-
-            private void Awake()
+            GameObject boundaryObject = GameObject.FindWithTag("boundary");
+            if (boundaryObject != null)
             {
-                if (boundary == null)
-                {
-                    GameObject boundaryObject = GameObject.FindWithTag("boundary");
-                    if (boundaryObject != null)
-                    {
-                        boundary = boundaryObject.GetComponent<BoxCollider>();
-                    }
-                }
-
-                if (boundary == null)
-                {
-                    Debug.LogError("Boundary not set for ObjectSpawner.");
-                }
+                boundary = boundaryObject.GetComponent<BoxCollider>();
             }
+        }
 
-        public Vector3 GetRandomPosition()
+        if (boundary == null)
         {
-                if (boundary == null)
-                {
-                    Debug.LogError("Boundary not set for ObjectSpawner.");
-                    return Vector3.zero;
-                }
+            Debug.LogError("Boundary not set for ObjectSpawner.");
+        }
+    }
 
-                Bounds bounds = boundary.bounds;
-                const int maxAttempts = 20;
-                Vector3 candidate = bounds.center;
+    public Vector3 GetRandomPosition()
+    {
+        if (boundary == null)
+        {
+            Debug.LogError("Boundary not set for ObjectSpawner.");
+            return Vector3.zero;
+        }
 
-                for (int i = 0; i < maxAttempts; i++)
-                {
-                    float randomX = Random.Range(bounds.min.x, bounds.max.x);
-                    float randomZ = Random.Range(bounds.min.z, bounds.max.z);
-                    Vector3 rayOrigin = new Vector3(randomX, bounds.max.y + 1f, randomZ);
-                    float rayDistance = bounds.size.y + 2f;
+        Bounds bounds = boundary.bounds;
+        const int maxAttempts = 20;
+        Vector3 candidate = bounds.center;
 
-                    if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hitInfo, rayDistance, surfaceLayers, QueryTriggerInteraction.Ignore))
-                    {
-                        candidate = hitInfo.point + Vector3.up * spawnHeightOffset;
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            float randomX = Random.Range(bounds.min.x, bounds.max.x);
+            float randomY = Random.Range(bounds.min.y, bounds.max.y);
+            float randomZ = Random.Range(bounds.min.z, bounds.max.z);
 
-                        if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers, QueryTriggerInteraction.Ignore))
-                        {
-                            return candidate;
-                        }
-                    }
-                }
+            candidate = new Vector3(randomX, randomY, randomZ);
 
-                Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning last candidate: {candidate}");
+            if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers, QueryTriggerInteraction.Ignore))
+            {
                 return candidate;
-        }
-
-            public void SpawnObject()
-            {
-                if(objectsCollected >= 4){
-                    return;
-                }
-
-                Vector3 randomPosition = GetRandomPosition();
-
-                GameObject prefabToSpawn = keyPrefabs[currentKeyIndex];
-                GameObject spawnedObject = Instantiate(prefabToSpawn, randomPosition, Quaternion.identity);
-                spawnedObject.SetActive(false);
-
-                spawnedObject.SetActive(true);
-
-                Debug.Log("Object spawned at position: " + randomPosition);
-
-                objectsCollected++;
-                currentKeyIndex++;
-
-                if (currentKeyIndex >= keyPrefabs.Length)
-                {
-                    currentKeyIndex = 0;
-                }
             }
         }
+
+        Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning last candidate: {candidate}");
+        return candidate;
+    }
+
+    public void SpawnObject()
+    {
+        if (objectsCollected >= 4)
+        {
+            return;
+        }
+
+        Vector3 randomPosition = GetRandomPosition();
+
+        GameObject prefabToSpawn = keyPrefabs[currentKeyIndex];
+        GameObject spawnedObject = Instantiate(prefabToSpawn, randomPosition, Quaternion.identity);
+        spawnedObject.SetActive(false);
+
+        spawnedObject.SetActive(true);
+
+        Debug.Log("Object spawned at position: " + randomPosition);
+
+        objectsCollected++;
+        currentKeyIndex++;
+
+        if (currentKeyIndex >= keyPrefabs.Length)
+        {
+            currentKeyIndex = 0;
+        }
+    }
+}
