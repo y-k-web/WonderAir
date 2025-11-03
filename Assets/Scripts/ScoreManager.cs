@@ -78,7 +78,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (Time.time > lastItemTime + chainTime)
         {
-            if (chainCount >= 2 && timerController != null)
+            if (chainCount >= 2 && timerController != null && !IsPortalActive())
             {
                 int chainSeconds = chainCount; // チェイン数分加算
                 timerController.AddTime(chainSeconds);
@@ -129,24 +129,14 @@ public class ScoreManager : MonoBehaviour
     public void AddScore(int amount, bool playSound)
     {
         float timeSinceLastItem = Time.time - lastItemTime;
-        bool portalIsActive = IsPortalActive();
-
         if (timeSinceLastItem <= chainTime)
         {
             chainCount++;
             if (chainCount >= 2)
             {
-                if (!portalIsActive)
-                {
-                    amount = Mathf.RoundToInt(amount * chainMultiplier);
-                    chainTextVertical.gameObject.SetActive(true);
-                    chainTextHorizontal.gameObject.SetActive(true);
-                }
-                else
-                {
-                    chainTextVertical.gameObject.SetActive(false);
-                    chainTextHorizontal.gameObject.SetActive(false);
-                }
+                amount = Mathf.RoundToInt(amount * chainMultiplier);
+                chainTextVertical.gameObject.SetActive(true);
+                chainTextHorizontal.gameObject.SetActive(true);
             }
         }
         else
@@ -173,13 +163,6 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateChainText()
     {
-        if (IsPortalActive())
-        {
-            chainTextVertical.text = "0Chain!";
-            chainTextHorizontal.text = "0Chain!";
-            return;
-        }
-
         chainTextVertical.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
         chainTextHorizontal.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
     }
