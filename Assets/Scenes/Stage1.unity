@@ -31313,8 +31313,9 @@ MonoBehaviour:
   keyCountTextHorizontal: {fileID: 22522055}
   scoreResultVertical: {fileID: 1291550728}
   scoreResultHorizontal: {fileID: 1894887579}
-  Portal: {fileID: 308398858}
-  ItemSet: {fileID: 0}
+  portalPrefab: {fileID: 308398858}
+  itemSet1: {fileID: 1134870219}
+  itemSet2: {fileID: 6458016664247280851}
   objectSpawner: {fileID: 2104318830}
   timerController: {fileID: 0}
   chainTime: 2
