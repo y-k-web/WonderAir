@@ -10,33 +10,30 @@ namespace RageRunGames.EasyFlyingSystem
         [Header("Input Settings")] 
         [HideInInspector] public InputType inputType;
 
-        [Header("Engine Settings")]
-        [SerializeField, Range(0f, 1f)] private float idleThrottle = 0.2f;
-        [SerializeField] private float throttleChangeRate = 1.5f;
-        [SerializeField] private float maxThrust = 180f;
+        [Header("Controller Settings")] 
+        [SerializeField] private bool maintainAltitude = true;
+        [SerializeField] protected bool useGravityOnNoInput;
 
-        [Header("Aerodynamics")]
-        [SerializeField] private float stallSpeed = 8f;
-        [SerializeField] private float maxAngleOfAttack = 25f;
-        [SerializeField] private float liftPower = 0.5f;
-        [SerializeField] private float dragFactor = 0.02f;
-        [SerializeField] private float inducedDragFactor = 0.015f;
-        [SerializeField] private float angularDamping = 0.8f;
-        [SerializeField] private float bankTorqueStrength = 4f;
-        [SerializeField] private AnimationCurve liftCurve =
-            new AnimationCurve(
-                new Keyframe(0f, 0f, 0f, 2f),
-                new Keyframe(0.5f, 1f, 0f, 0f),
-                new Keyframe(1f, 0f, -2f, 0f));
+        [Header("Hover Settings")] 
+        [SerializeField] protected bool enableHover;
 
-        [Header("Ground Settings")]
+        [Range(0, 10)] [SerializeField] protected float hoverAmplitude = 1.25f;
+        [Range(0, 10)] [SerializeField] protected float hoverFrequency = 2f;
+
+        [Header("Ground Settings")] 
         [SerializeField] protected float groundCheckDistance = 0.2f;
+
         [SerializeField] protected bool decelerateOnGround;
         [SerializeField] protected float decelSpeedOnGround = 4f;
 
+        // 慣性制御用の新しいパラメータ
+        [Header("Inertia Settings")]
+        [SerializeField] private float baseDrag = 1f; // 抗力の最小値
+        [SerializeField] private float maxDrag = 1.5f;    // 抗力の最大値
+        [SerializeField] private float adjDragMaxSpeed = 20f; // 最大速度（抗力調整の基準
 
-        private float throttle;
-        private float targetThrottle;
+
+        private float timer;
 
         private BaseInputHandler currentInputHandler;
 
@@ -51,12 +48,8 @@ namespace RageRunGames.EasyFlyingSystem
                 Debug.LogWarning(" No input is added or selected, adding keyboard input as default ");
                 InputHandler = gameObject.AddComponent<KeyboardInputHandler>();
             }
-            rb.useGravity = true;
-            rb.drag = dragFactor;
-            rb.angularDrag = angularDamping;
-
-            throttle = Mathf.Clamp01(idleThrottle);
-            targetThrottle = throttle;
+            // 抗力の初期値を設定
+            rb.drag = baseDrag;
         }
 
         protected override void Update()
@@ -79,85 +72,71 @@ namespace RageRunGames.EasyFlyingSystem
         {
             base.HandleRotations();
 
+            if (autoForwardMovement)
+            {
+                currentPitch = pitchAmount;
+            }
+
             Quaternion currentRotation = Quaternion.Euler(currentPitch, currentYaw, currentRoll);
             rb.MoveRotation(currentRotation);
         }
 
         protected override void UpdateMovement(IInputHandler inputHandler)
         {
-            UpdateThrottle(inputHandler.Lift);
+            Vector3 upVector = Vector3.up;
+            upVector.x = 0f;
+            upVector.z = 0f;
 
-            Vector3 velocity = rb.velocity;
-            float speed = velocity.magnitude;
-            Vector3 forward = transform.forward;
-            Vector3 up = transform.up;
+            float upVectorMagnitude = 1 - upVector.magnitude;
+            float gravityMagnitude = Physics.gravity.magnitude * upVectorMagnitude;
 
-            float forwardSpeed = Mathf.Max(0f, Vector3.Dot(velocity, forward));
+            float upwardForce = 0f;
 
-            Vector3 thrustForce = forward * (maxThrust * throttle);
-
-            Vector3 velocityDirection = speed > 0.01f ? velocity.normalized : forward;
-            float angleOfAttack = Vector3.SignedAngle(forward, velocityDirection, transform.right);
-            float normalizedAoA = Mathf.InverseLerp(-maxAngleOfAttack, maxAngleOfAttack, angleOfAttack);
-            float liftEvaluation = liftCurve.Evaluate(Mathf.Clamp01(normalizedAoA));
-
-            float liftMagnitude = liftPower * liftEvaluation * forwardSpeed * forwardSpeed;
-
-            if (forwardSpeed < stallSpeed)
+            if (!useGravityOnNoInput)
             {
-                float stallFactor = Mathf.Clamp01(forwardSpeed / Mathf.Max(0.1f, stallSpeed));
-                liftMagnitude *= stallFactor * stallFactor;
-            }
-
-            Vector3 liftForce = up * liftMagnitude;
-
-            Vector3 dragForce = Vector3.zero;
-
-            if (speed > 0.01f)
-            {
-                dragForce = -velocityDirection * (dragFactor * speed * speed);
-            }
-
-            Vector3 inducedDrag = -forward * (liftMagnitude * inducedDragFactor);
-
-            Vector3 bankTorque = Vector3.zero;
-
-            if (!Mathf.Approximately(speed, 0f))
-            {
-                float bankAmount = Mathf.Sin(Mathf.Deg2Rad * currentRoll);
-                bankTorque = transform.up * (bankAmount * bankTorqueStrength * speed);
-            }
-
-            rb.AddForce(thrustForce + liftForce + dragForce + inducedDrag, ForceMode.Force);
-            rb.AddTorque(bankTorque - rb.angularVelocity * angularDamping, ForceMode.Force);
-
-            LimitVelocity(velocity);
-        }
-
-        private void UpdateThrottle(float liftInput)
-        {
-            if (autoForwardMovement)
-            {
-                targetThrottle = 1f;
+                upwardForce = rb.mass * Physics.gravity.magnitude + gravityMagnitude + inputHandler.Lift * maxSpeed;
             }
             else
             {
-                targetThrottle = Mathf.Clamp01(targetThrottle + liftInput * throttleChangeRate * Time.fixedDeltaTime);
-                targetThrottle = Mathf.Max(targetThrottle, idleThrottle);
+                upwardForce = inputHandler.Lift * maxSpeed;
             }
 
-            throttle = Mathf.MoveTowards(throttle, targetThrottle, throttleChangeRate * Time.fixedDeltaTime);
+            Vector3 liftForce = Vector3.up * upwardForce;
+
+            Vector3 forwardForce =
+                disablePitch ? Vector3.zero : inputHandler.Pitch * maxSpeed * transform.forward;
+            Vector3 sidewaysForce =
+                disableRoll ? Vector3.zero : inputHandler.Roll * maxSpeed * transform.right;
+
+            if (autoForwardMovement)
+            {
+                forwardForce = maxSpeed * transform.forward;
+            }
+
+            if (maintainAltitude)
+            {
+                forwardForce.y = 0f;
+                sidewaysForce.y = 0f;
+            }
+
+            if (enableHover && inputHandler.checkInputs)
+            {
+                timer += Time.deltaTime;
+                float hoverForce = Mathf.Sin(timer * hoverFrequency) * hoverAmplitude;
+                liftForce += Vector3.up * hoverForce;
+            }
+
+            rb.AddForce(forwardForce + liftForce + sidewaysForce, ForceMode.Force);
+            AdjustDrag(rb.velocity.magnitude);
         }
 
-        private void LimitVelocity(Vector3 velocity)
+        private void AdjustDrag(float speed)
         {
-            Vector3 localVelocity = transform.InverseTransformDirection(velocity);
-            localVelocity.z = Mathf.Clamp(localVelocity.z, 0f, maxSpeed);
-            float lateralLimit = maxSpeed * 0.35f;
-            localVelocity.x = Mathf.Clamp(localVelocity.x, -lateralLimit, lateralLimit);
-            localVelocity.y = Mathf.Clamp(localVelocity.y, -lateralLimit, lateralLimit);
+            // 速度に応じて抗力を線形補間
+            rb.drag = Mathf.Lerp(baseDrag, maxDrag, speed / adjDragMaxSpeed);
 
-            rb.velocity = transform.TransformDirection(localVelocity);
+            // デバッグログ
+            Debug.Log($"Speed: {speed}, Drag: {rb.drag}");
         }
 
         public InputType GetInputType()
