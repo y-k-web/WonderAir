@@ -9,7 +9,7 @@ namespace RageRunGames.EasyFlyingSystem
         [SerializeField] private bool enableDebugInput = true;      // デバッグ入力を有効化
         [SerializeField] private bool enableHorizontalInput = true; // 水平軸の入力を有効化
         private bool wasKeyboardInput = false; // 前フレームでキーボード入力があったか
-        private Vector2 lastKeyboardVector = Vector2.zero; // 前回適用したキーボード入力
+        private Vector2 lastAppliedKeyboardVector = Vector2.zero; // 前回適用したキーボード入力の寄与分
 
         private void Start()
         {
@@ -59,20 +59,20 @@ namespace RageRunGames.EasyFlyingSystem
                 }
             }
 
+            Vector2 baseInput = mobileController.CurrentInput - lastAppliedKeyboardVector;
+
             if (hasInput)
             {
-                Vector2 mobileInput = mobileController.CurrentInput - lastKeyboardVector;
                 Vector2 keyboardVector = new Vector2(horizontalInput, verticalInput);
-                lastKeyboardVector = keyboardVector;
-                Vector2 combined = Vector2.ClampMagnitude(mobileInput + keyboardVector, 1f);
+                Vector2 combined = Vector2.ClampMagnitude(baseInput + keyboardVector, 1f);
+                lastAppliedKeyboardVector = combined - baseInput;
                 mobileController.SetDebugInput(combined);
                 wasKeyboardInput = true;
             }
             else if (wasKeyboardInput)
             {
-                Vector2 mobileInput = mobileController.CurrentInput - lastKeyboardVector;
-                mobileController.SetDebugInput(mobileInput);
-                lastKeyboardVector = Vector2.zero;
+                mobileController.SetDebugInput(baseInput);
+                lastAppliedKeyboardVector = Vector2.zero;
                 wasKeyboardInput = false;
             }
         }
