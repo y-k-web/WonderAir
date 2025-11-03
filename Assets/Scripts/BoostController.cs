@@ -25,6 +25,10 @@ public class BoostController : MonoBehaviour
     private float originalMaxSpeed;   // 初期の最大速度を保存
     private Color leftOriginalColor;   // 左手パーティクルの元の色
     private Color rightOriginalColor;  // 右手パーティクルの元の色
+    private Color leftTrailOriginalStartColor;  // 左手トレイルの元の開始色
+    private Color leftTrailOriginalEndColor;    // 左手トレイルの元の終了色
+    private Color rightTrailOriginalStartColor; // 右手トレイルの元の開始色
+    private Color rightTrailOriginalEndColor;   // 右手トレイルの元の終了色
 
     void Awake()
     {
@@ -65,8 +69,16 @@ public class BoostController : MonoBehaviour
             rightOriginalColor = rightHandParticle.main.startColor.color;
         }
 
-        // トレイルの初期色を白に設定
-        SetTrailColor(Color.white, Color.white);
+        if (leftTrail != null)
+        {
+            leftTrailOriginalStartColor = leftTrail.startColor;
+            leftTrailOriginalEndColor = leftTrail.endColor;
+        }
+        if (rightTrail != null)
+        {
+            rightTrailOriginalStartColor = rightTrail.startColor;
+            rightTrailOriginalEndColor = rightTrail.endColor;
+        }
     }
 
     void Update()
@@ -133,7 +145,7 @@ public class BoostController : MonoBehaviour
         isBoosting = false;
         UpdateButtonColor();
         SetParticleColor(leftOriginalColor, rightOriginalColor);
-        SetTrailColor(Color.white, Color.white);
+        RestoreTrailColor();
     }
 
     private void UpdateBoostUI()
@@ -182,10 +194,26 @@ public class BoostController : MonoBehaviour
         if (leftTrail != null)
         {
             leftTrail.startColor = leftColor;
+            leftTrail.endColor = leftColor;
         }
         if (rightTrail != null)
         {
             rightTrail.startColor = rightColor;
+            rightTrail.endColor = rightColor;
+        }
+    }
+
+    private void RestoreTrailColor()
+    {
+        if (leftTrail != null)
+        {
+            leftTrail.startColor = leftTrailOriginalStartColor;
+            leftTrail.endColor = leftTrailOriginalEndColor;
+        }
+        if (rightTrail != null)
+        {
+            rightTrail.startColor = rightTrailOriginalStartColor;
+            rightTrail.endColor = rightTrailOriginalEndColor;
         }
     }
 
