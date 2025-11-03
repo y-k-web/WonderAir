@@ -16,7 +16,8 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI scoreResultVertical;
     public TextMeshProUGUI scoreResultHorizontal;
     public GameObject Portal;
-    public GameObject ItemSet;
+    public GameObject ItemSet1;
+    public GameObject ItemSet2;
     public ObjectSpawner objectSpawner;
     [SerializeField] private TimerController timerController; // タイマー制御
 
@@ -30,6 +31,9 @@ public class ScoreManager : MonoBehaviour
 
     private int[] scoreThresholds = { 1000, 2000, 3000, 4000 };
     private bool[] hasSpawned = { false, false, false, false };
+
+    private GameObject activePortal;
+    private bool itemSetsSwapped = false;
 
     private AudioSource bgmSource;
     private AudioSource sfxSource;
@@ -47,6 +51,8 @@ public class ScoreManager : MonoBehaviour
         chainTextVertical.gameObject.SetActive(false);
         UpdateKeyCountText();
 
+        UpdateItemSets(false);
+
         if (timerController == null)
         {
             timerController = FindObjectOfType<TimerController>();
@@ -57,6 +63,8 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
+        bool portalActive = IsPortalActive();
+
         if (Time.time > lastItemTime + chainTime)
         {
             if (chainCount >= 2 && timerController != null)
@@ -68,6 +76,11 @@ public class ScoreManager : MonoBehaviour
             chainCount = 0;
             chainTextHorizontal.gameObject.SetActive(false);
             chainTextVertical.gameObject.SetActive(false);
+        }
+
+        if (itemSetsSwapped != portalActive)
+        {
+            UpdateItemSets(portalActive);
         }
 
         // スコアが閾値を超える場合にオブジェクトをスポーン
@@ -110,8 +123,9 @@ public class ScoreManager : MonoBehaviour
     public void AddScore(int amount, bool playSound)
     {
         float timeSinceLastItem = Time.time - lastItemTime;
+        bool portalActive = IsPortalActive();
 
-        if (timeSinceLastItem <= chainTime)
+        if (!portalActive && timeSinceLastItem <= chainTime)
         {
             chainCount++;
             if (chainCount >= 2)
@@ -124,6 +138,11 @@ public class ScoreManager : MonoBehaviour
         else
         {
             chainCount = 1;
+            if (portalActive)
+            {
+                chainTextVertical.gameObject.SetActive(false);
+                chainTextHorizontal.gameObject.SetActive(false);
+            }
         }
 
         if (playSound)
@@ -158,11 +177,9 @@ public class ScoreManager : MonoBehaviour
 
         spawnedPortal.SetActive(true);
 
-        // ItemSet オブジェクトを生成し、非アクティブにする
-        ItemSet = Instantiate(ItemSet);
-        ItemSet.SetActive(false); // 最初は非アクティブにする
+        activePortal = spawnedPortal;
 
-        ItemSet.SetActive(true);
+        UpdateItemSets(true);
     }
     public void UpdateGameOverScoreText()
     {
@@ -221,5 +238,25 @@ public class ScoreManager : MonoBehaviour
         {
             sfxSource.PlayOneShot(lastPickupClip, sfxVolume);
         }
+    }
+
+    private bool IsPortalActive()
+    {
+        return activePortal != null && activePortal.activeInHierarchy;
+    }
+
+    private void UpdateItemSets(bool portalActive)
+    {
+        if (ItemSet1 != null)
+        {
+            ItemSet1.SetActive(!portalActive);
+        }
+
+        if (ItemSet2 != null)
+        {
+            ItemSet2.SetActive(portalActive);
+        }
+
+        itemSetsSwapped = portalActive;
     }
 }

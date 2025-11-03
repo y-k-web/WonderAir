@@ -5866,7 +5866,8 @@ MonoBehaviour:
   scoreResultVertical: {fileID: 1398477167}
   scoreResultHorizontal: {fileID: 656457331}
   Portal: {fileID: 0}
-  ItemSet: {fileID: 0}
+  ItemSet1: {fileID: 0}
+  ItemSet2: {fileID: 0}
   objectSpawner: {fileID: 0}
   chainTime: 2
   chainMultiplier: 1.25
