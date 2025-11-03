@@ -25,10 +25,8 @@ public class BoostController : MonoBehaviour
     private float originalMaxSpeed;   // 初期の最大速度を保存
     private Color leftOriginalColor;   // 左手パーティクルの元の色
     private Color rightOriginalColor;  // 右手パーティクルの元の色
-    private Color leftTrailOriginalStartColor;  // 左手トレイルの元の開始色
-    private Color leftTrailOriginalEndColor;    // 左手トレイルの元の終了色
-    private Color rightTrailOriginalStartColor; // 右手トレイルの元の開始色
-    private Color rightTrailOriginalEndColor;   // 右手トレイルの元の終了色
+    private Gradient leftTrailOriginalGradient;  // 左手トレイルの元のグラデーション
+    private Gradient rightTrailOriginalGradient; // 右手トレイルの元のグラデーション
 
     void Awake()
     {
@@ -71,13 +69,11 @@ public class BoostController : MonoBehaviour
 
         if (leftTrail != null)
         {
-            leftTrailOriginalStartColor = leftTrail.startColor;
-            leftTrailOriginalEndColor = leftTrail.endColor;
+            leftTrailOriginalGradient = CloneGradient(leftTrail.colorGradient);
         }
         if (rightTrail != null)
         {
-            rightTrailOriginalStartColor = rightTrail.startColor;
-            rightTrailOriginalEndColor = rightTrail.endColor;
+            rightTrailOriginalGradient = CloneGradient(rightTrail.colorGradient);
         }
     }
 
@@ -191,30 +187,56 @@ public class BoostController : MonoBehaviour
 
     private void SetTrailColor(Color leftColor, Color rightColor)
     {
-        if (leftTrail != null)
-        {
-            leftTrail.startColor = leftColor;
-            leftTrail.endColor = leftColor;
-        }
-        if (rightTrail != null)
-        {
-            rightTrail.startColor = rightColor;
-            rightTrail.endColor = rightColor;
-        }
+        ApplySolidColorToTrail(leftTrail, leftColor);
+        ApplySolidColorToTrail(rightTrail, rightColor);
     }
 
     private void RestoreTrailColor()
     {
-        if (leftTrail != null)
+        if (leftTrail != null && leftTrailOriginalGradient != null)
         {
-            leftTrail.startColor = leftTrailOriginalStartColor;
-            leftTrail.endColor = leftTrailOriginalEndColor;
+            leftTrail.colorGradient = CloneGradient(leftTrailOriginalGradient);
         }
-        if (rightTrail != null)
+        if (rightTrail != null && rightTrailOriginalGradient != null)
         {
-            rightTrail.startColor = rightTrailOriginalStartColor;
-            rightTrail.endColor = rightTrailOriginalEndColor;
+            rightTrail.colorGradient = CloneGradient(rightTrailOriginalGradient);
         }
+    }
+
+    private void ApplySolidColorToTrail(TrailRenderer trail, Color color)
+    {
+        if (trail == null)
+        {
+            return;
+        }
+
+        var gradient = new Gradient();
+        gradient.SetKeys(
+            new[]
+            {
+                new GradientColorKey(color, 0f),
+                new GradientColorKey(color, 1f)
+            },
+            new[]
+            {
+                new GradientAlphaKey(color.a, 0f),
+                new GradientAlphaKey(color.a, 1f)
+            }
+        );
+
+        trail.colorGradient = gradient;
+    }
+
+    private Gradient CloneGradient(Gradient gradient)
+    {
+        if (gradient == null)
+        {
+            return null;
+        }
+
+        var clone = new Gradient();
+        clone.SetKeys(gradient.colorKeys, gradient.alphaKeys);
+        return clone;
     }
 
     public void RecoverBoost(float amount)
