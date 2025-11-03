@@ -105,6 +105,13 @@ namespace RageRunGames.EasyFlyingSystem
 
             Vector3 forwardForce =
                 disablePitch ? Vector3.zero : inputHandler.Pitch * maxSpeed * transform.forward;
+            float forwardSpeed = Vector3.Dot(rb.velocity, transform.forward);
+
+            if ((forwardSpeed > 0f && inputHandler.Pitch < 0f) ||
+                (forwardSpeed < 0f && inputHandler.Pitch > 0f))
+            {
+                rb.velocity -= Vector3.Project(rb.velocity, transform.forward);
+            }
             Vector3 sidewaysForce =
                 disableRoll ? Vector3.zero : inputHandler.Roll * maxSpeed * transform.right;
 
