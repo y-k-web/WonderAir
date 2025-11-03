@@ -131,7 +131,7 @@ namespace RageRunGames.EasyFlyingSystem
                 disablePitch ? Vector3.zero : pitchInput * maxSpeed * transform.forward;
             float forwardSpeed = Vector3.Dot(rb.velocity, transform.forward);
 
-            HandleQuickSlide(pitchInput, inputHandler.Roll, forwardSpeed);
+            HandleQuickSlide(pitchInput, inputHandler.Roll, inputHandler.Yaw, forwardSpeed);
 
             if (!IsBoosting() &&
                 Mathf.Abs(pitchInput) >= quickStopInputThreshold &&
@@ -172,7 +172,7 @@ namespace RageRunGames.EasyFlyingSystem
             return boostController != null && boostController.IsBoosting;
         }
 
-        private void HandleQuickSlide(float pitchInput, float rollInput, float forwardSpeed)
+        private void HandleQuickSlide(float pitchInput, float rollInput, float yawInput, float forwardSpeed)
         {
             if (!enableQuickSlide)
             {
@@ -201,13 +201,22 @@ namespace RageRunGames.EasyFlyingSystem
                 {
                     quickSlideWindowActive = false;
                 }
-                else if (Mathf.Abs(rollInput) >= quickSlideInputThreshold)
+                else
                 {
-                    Vector3 slideDirection = Vector3.ProjectOnPlane(transform.right * Mathf.Sign(rollInput), Vector3.up);
+                    float quickSlideAxis = Mathf.Abs(yawInput) >= quickSlideInputThreshold
+                        ? yawInput
+                        : Mathf.Abs(rollInput) >= quickSlideInputThreshold
+                            ? rollInput
+                            : 0f;
 
-                    if (slideDirection.sqrMagnitude > 0f)
+                    if (Mathf.Abs(quickSlideAxis) >= quickSlideInputThreshold)
                     {
-                        StartQuickSlide(slideDirection.normalized);
+                        Vector3 slideDirection = Vector3.ProjectOnPlane(transform.right * Mathf.Sign(quickSlideAxis), Vector3.up);
+
+                        if (slideDirection.sqrMagnitude > 0f)
+                        {
+                            StartQuickSlide(slideDirection.normalized);
+                        }
                     }
                 }
             }

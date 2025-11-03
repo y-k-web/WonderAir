@@ -1328,7 +1328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rangeValue: 0.65
   allowedZone: 0
-  axisTypes: 2
+  axisTypes: 0
   snapX: 0
   snapY: 0
   holder: {fileID: 8566084810919288967}
@@ -1362,7 +1362,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mobileController: {fileID: 3729987430627264143}
   enableDebugInput: 1
-  enableHorizontalInput: 0
+  enableHorizontalInput: 1
 --- !u!1 &7693951626014535107
 GameObject:
   m_ObjectHideFlags: 0
