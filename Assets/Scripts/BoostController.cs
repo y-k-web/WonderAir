@@ -193,14 +193,8 @@ public class BoostController : MonoBehaviour
 
     private void RestoreTrailColor()
     {
-        if (leftTrail != null && leftTrailOriginalGradient != null)
-        {
-            leftTrail.colorGradient = CloneGradient(leftTrailOriginalGradient);
-        }
-        if (rightTrail != null && rightTrailOriginalGradient != null)
-        {
-            rightTrail.colorGradient = CloneGradient(rightTrailOriginalGradient);
-        }
+        RestoreTrailGradient(leftTrail, leftTrailOriginalGradient);
+        RestoreTrailGradient(rightTrail, rightTrailOriginalGradient);
     }
 
     private void ApplySolidColorToTrail(TrailRenderer trail, Color color)
@@ -225,6 +219,18 @@ public class BoostController : MonoBehaviour
         );
 
         trail.colorGradient = gradient;
+        trail.Clear();
+    }
+
+    private void RestoreTrailGradient(TrailRenderer trail, Gradient originalGradient)
+    {
+        if (trail == null || originalGradient == null)
+        {
+            return;
+        }
+
+        trail.colorGradient = CloneGradient(originalGradient);
+        trail.Clear();
     }
 
     private Gradient CloneGradient(Gradient gradient)
