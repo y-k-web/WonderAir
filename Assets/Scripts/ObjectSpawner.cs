@@ -7,7 +7,9 @@
             public GameObject[] keyPrefabs; // 4つのKeyのプレハブを格納する配列
             public BoxCollider boundary; // スポーン範囲を定義するBoundary
             public float spawnRadius = 0.5f; // 半径のコリジョンチェック
+            public float spawnHeightOffset = 0.3f; // 地面から浮かせる高さ
             public LayerMask blockingLayers = ~0; // スポーンをブロックするレイヤーマスク
+            public LayerMask surfaceLayers = ~0; // スポーン可能な地形レイヤー
 
             private int objectsCollected = 0;
             private int currentKeyIndex = 0; // 現在のKeyのインデックス
@@ -37,22 +39,25 @@
                     return Vector3.zero;
                 }
 
+                Bounds bounds = boundary.bounds;
                 const int maxAttempts = 20;
-                Vector3 candidate = Vector3.zero;
-                Vector3 center = boundary.center;
-                Vector3 size = boundary.size;
+                Vector3 candidate = bounds.center;
+
                 for (int i = 0; i < maxAttempts; i++)
                 {
-                    Vector3 localOffset = new Vector3(
-                        Random.Range(-size.x * 0.5f, size.x * 0.5f),
-                        Random.Range(-size.y * 0.5f, size.y * 0.5f),
-                        Random.Range(-size.z * 0.5f, size.z * 0.5f)
-                    );
-                    candidate = boundary.transform.TransformPoint(center + localOffset);
+                    float randomX = Random.Range(bounds.min.x, bounds.max.x);
+                    float randomZ = Random.Range(bounds.min.z, bounds.max.z);
+                    Vector3 rayOrigin = new Vector3(randomX, bounds.max.y + 1f, randomZ);
+                    float rayDistance = bounds.size.y + 2f;
 
-                    if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers))
+                    if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hitInfo, rayDistance, surfaceLayers, QueryTriggerInteraction.Ignore))
                     {
-                        return candidate;
+                        candidate = hitInfo.point + Vector3.up * spawnHeightOffset;
+
+                        if (!Physics.CheckSphere(candidate, spawnRadius, blockingLayers, QueryTriggerInteraction.Ignore))
+                        {
+                            return candidate;
+                        }
                     }
                 }
 
