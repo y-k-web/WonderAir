@@ -30,6 +30,7 @@ namespace RageRunGames.EasyFlyingSystem
         [SerializeField, Range(0f, 1f)] private float quickSlideInputThreshold = 0.25f;
         [SerializeField] private float quickSlideWindowDuration = 0.25f;
         [SerializeField] private float quickSlideVelocityChange = 2f;
+        [SerializeField] private float quickSlideDistance = 2f;
         [SerializeField] private float quickSlideMinForwardSpeed = 1f;
 
         [Header("Ground Settings")]
@@ -49,6 +50,11 @@ namespace RageRunGames.EasyFlyingSystem
         private float previousPitchInput;
         private float quickSlideTimer;
         private bool quickSlideWindowActive;
+        private bool quickSlideMovementActive;
+        private float quickSlideMovementElapsed;
+        private float quickSlideMovementDuration;
+        private Vector3 quickSlideTargetOffset;
+        private Vector3 quickSlideAppliedOffset;
 
         private BaseInputHandler currentInputHandler;
         private BoostController boostController;
@@ -156,6 +162,7 @@ namespace RageRunGames.EasyFlyingSystem
             }
 
             rb.AddForce(forwardForce + liftForce + sidewaysForce, ForceMode.Force);
+            UpdateQuickSlideMovement();
             AdjustDrag(rb.velocity.magnitude);
             previousPitchInput = pitchInput;
         }
@@ -200,12 +207,68 @@ namespace RageRunGames.EasyFlyingSystem
 
                     if (slideDirection.sqrMagnitude > 0f)
                     {
-                        slideDirection.Normalize();
-                        rb.AddForce(slideDirection * quickSlideVelocityChange, ForceMode.VelocityChange);
+                        StartQuickSlide(slideDirection.normalized);
                     }
-
-                    quickSlideWindowActive = false;
                 }
+            }
+        }
+
+        private void StartQuickSlide(Vector3 slideDirection)
+        {
+            quickSlideWindowActive = false;
+
+            if (quickSlideDistance <= 0f)
+            {
+                quickSlideMovementActive = false;
+                return;
+            }
+
+            quickSlideTargetOffset = slideDirection * quickSlideDistance;
+            quickSlideMovementDuration = quickSlideVelocityChange > Mathf.Epsilon
+                ? quickSlideDistance / quickSlideVelocityChange
+                : 0f;
+            quickSlideMovementElapsed = 0f;
+            quickSlideAppliedOffset = Vector3.zero;
+            quickSlideMovementActive = true;
+        }
+
+        private void UpdateQuickSlideMovement()
+        {
+            if (!quickSlideMovementActive)
+            {
+                return;
+            }
+
+            float deltaTime = Time.deltaTime;
+
+            if (quickSlideMovementDuration <= Mathf.Epsilon)
+            {
+                Vector3 remainingOffset = quickSlideTargetOffset - quickSlideAppliedOffset;
+
+                if (remainingOffset.sqrMagnitude > 0f)
+                {
+                    rb.MovePosition(rb.position + remainingOffset);
+                    quickSlideAppliedOffset += remainingOffset;
+                }
+
+                quickSlideMovementActive = false;
+                return;
+            }
+
+            quickSlideMovementElapsed += deltaTime;
+            float progress = Mathf.Clamp01(quickSlideMovementElapsed / quickSlideMovementDuration);
+            Vector3 desiredOffset = quickSlideTargetOffset * progress;
+            Vector3 offsetDelta = desiredOffset - quickSlideAppliedOffset;
+
+            if (offsetDelta.sqrMagnitude > 0f)
+            {
+                rb.MovePosition(rb.position + offsetDelta);
+                quickSlideAppliedOffset += offsetDelta;
+            }
+
+            if (progress >= 1f)
+            {
+                quickSlideMovementActive = false;
             }
         }
 
