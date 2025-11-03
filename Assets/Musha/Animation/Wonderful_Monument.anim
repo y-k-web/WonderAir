@@ -145,17 +145,17 @@ AnimationClip:
       - serializedVersion: 3
         time: 0
         value: {x: -90, y: 0, z: -90}
-        inSlope: {x: 0, y: 0, z: 5.8008347}
-        outSlope: {x: 0, y: 0, z: 5.8008347}
+        inSlope: {x: 0, y: 0, z: 12}
+        outSlope: {x: 0, y: 0, z: 12}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 30
-        value: {x: -90, y: 0, z: 84.02504}
-        inSlope: {x: 0, y: 0, z: 5.8008347}
-        outSlope: {x: 0, y: 0, z: 5.8008347}
+        value: {x: -90, y: 0, z: 270}
+        inSlope: {x: 0, y: 0, z: 12}
+        outSlope: {x: 0, y: 0, z: 12}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
@@ -1455,17 +1455,17 @@ AnimationClip:
       - serializedVersion: 3
         time: 0
         value: -90
-        inSlope: 5.8008347
-        outSlope: 5.8008347
+        inSlope: 12
+        outSlope: 12
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 30
-        value: 84.02504
-        inSlope: 5.8008347
-        outSlope: 5.8008347
+        value: 270
+        inSlope: 12
+        outSlope: 12
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
@@ -2349,7 +2349,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Sphere.023
+    path: Wonderful_Decoration/Circle.014
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2359,7 +2359,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Sphere.023
+    path: Wonderful_Decoration/Circle.014
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2369,7 +2369,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Sphere.023
+    path: Wonderful_Decoration/Circle.014
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2739,7 +2739,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Wonderful_Decoration/Circle.014
+    path: Sphere.023
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2749,7 +2749,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Wonderful_Decoration/Circle.014
+    path: Sphere.023
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -2759,7 +2759,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Wonderful_Decoration/Circle.014
+    path: Sphere.023
     classID: 4
     script: {fileID: 0}
   m_HasGenericRootTransform: 0
