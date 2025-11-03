@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -15,8 +16,11 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI keyCountTextHorizontal;
     public TextMeshProUGUI scoreResultVertical;
     public TextMeshProUGUI scoreResultHorizontal;
-    public GameObject Portal;
-    public GameObject ItemSet;
+    [FormerlySerializedAs("Portal")]
+    [SerializeField] private GameObject portalPrefab;
+    [FormerlySerializedAs("ItemSet")]
+    [SerializeField] private GameObject itemSet1;
+    [SerializeField] private GameObject itemSet2;
     public ObjectSpawner objectSpawner;
     [SerializeField] private TimerController timerController; // タイマー制御
 
@@ -30,6 +34,8 @@ public class ScoreManager : MonoBehaviour
 
     private int[] scoreThresholds = { 1000, 2000, 3000, 4000 };
     private bool[] hasSpawned = { false, false, false, false };
+
+    private GameObject activePortal;
 
     private AudioSource bgmSource;
     private AudioSource sfxSource;
@@ -46,6 +52,19 @@ public class ScoreManager : MonoBehaviour
         chainTextHorizontal.gameObject.SetActive(false);
         chainTextVertical.gameObject.SetActive(false);
         UpdateKeyCountText();
+
+        if (itemSet1 != null)
+        {
+            itemSet1.SetActive(true);
+        }
+
+        if (itemSet2 != null)
+        {
+            itemSet2.SetActive(false);
+        }
+
+        chainTextHorizontal.gameObject.SetActive(false);
+        chainTextVertical.gameObject.SetActive(false);
 
         if (timerController == null)
         {
@@ -110,15 +129,24 @@ public class ScoreManager : MonoBehaviour
     public void AddScore(int amount, bool playSound)
     {
         float timeSinceLastItem = Time.time - lastItemTime;
+        bool portalIsActive = IsPortalActive();
 
         if (timeSinceLastItem <= chainTime)
         {
             chainCount++;
             if (chainCount >= 2)
             {
-                amount = Mathf.RoundToInt(amount * chainMultiplier);
-                chainTextVertical.gameObject.SetActive(true);
-                chainTextHorizontal.gameObject.SetActive(true);
+                if (!portalIsActive)
+                {
+                    amount = Mathf.RoundToInt(amount * chainMultiplier);
+                    chainTextVertical.gameObject.SetActive(true);
+                    chainTextHorizontal.gameObject.SetActive(true);
+                }
+                else
+                {
+                    chainTextVertical.gameObject.SetActive(false);
+                    chainTextHorizontal.gameObject.SetActive(false);
+                }
             }
         }
         else
@@ -145,6 +173,13 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateChainText()
     {
+        if (IsPortalActive())
+        {
+            chainTextVertical.text = "0Chain!";
+            chainTextHorizontal.text = "0Chain!";
+            return;
+        }
+
         chainTextVertical.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
         chainTextHorizontal.text = (chainCount >= 2 ? chainCount : 0) + "Chain!";
     }
@@ -153,16 +188,25 @@ public class ScoreManager : MonoBehaviour
     {
         Vector3 randomPosition = objectSpawner.GetRandomPosition();
 
-        GameObject spawnedPortal = Instantiate(Portal, randomPosition, Quaternion.identity);
-        spawnedPortal.SetActive(false);
+        if (portalPrefab != null)
+        {
+            activePortal = Instantiate(portalPrefab, randomPosition, Quaternion.identity);
+            activePortal.SetActive(false);
+            activePortal.SetActive(true);
+        }
 
-        spawnedPortal.SetActive(true);
+        if (itemSet1 != null)
+        {
+            itemSet1.SetActive(false);
+        }
 
-        // ItemSet オブジェクトを生成し、非アクティブにする
-        ItemSet = Instantiate(ItemSet);
-        ItemSet.SetActive(false); // 最初は非アクティブにする
+        if (itemSet2 != null)
+        {
+            itemSet2.SetActive(true);
+        }
 
-        ItemSet.SetActive(true);
+        chainTextVertical.gameObject.SetActive(false);
+        chainTextHorizontal.gameObject.SetActive(false);
     }
     public void UpdateGameOverScoreText()
     {
@@ -221,5 +265,10 @@ public class ScoreManager : MonoBehaviour
         {
             sfxSource.PlayOneShot(lastPickupClip, sfxVolume);
         }
+    }
+
+    private bool IsPortalActive()
+    {
+        return activePortal != null && activePortal.activeInHierarchy;
     }
 }
