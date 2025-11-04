@@ -122,11 +122,6 @@ public class GodRaySpawnPointFader : MonoBehaviour
             ApplyAlpha(0f);
         }
 
-        foreach (var renderer in _renderers)
-        {
-            renderer.enabled = false;
-        }
-
         foreach (var ps in _particleSystems)
         {
             if (ps != null)
