@@ -122,17 +122,20 @@ public class GodRaySpawnPointFader : MonoBehaviour
             ApplyAlpha(0f);
         }
 
-        foreach (var renderer in _renderers)
-        {
-            renderer.enabled = false;
-        }
-
         foreach (var ps in _particleSystems)
         {
             if (ps != null)
             {
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
+        }
+
+        if (spawnPointRoot != null)
+        {
+            var rootToDeactivate = spawnPointRoot.transform.parent != null
+                ? spawnPointRoot.transform.parent.gameObject
+                : spawnPointRoot;
+            rootToDeactivate.SetActive(false);
         }
     }
 
