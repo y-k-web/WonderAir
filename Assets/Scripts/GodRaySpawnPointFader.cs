@@ -134,6 +134,11 @@ public class GodRaySpawnPointFader : MonoBehaviour
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
         }
+
+        if (spawnPointRoot != null)
+        {
+            spawnPointRoot.SetActive(false);
+        }
     }
 
     private void ApplyAlpha(float normalizedAlpha)
