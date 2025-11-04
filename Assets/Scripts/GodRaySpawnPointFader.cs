@@ -137,7 +137,10 @@ public class GodRaySpawnPointFader : MonoBehaviour
 
         if (spawnPointRoot != null)
         {
-            spawnPointRoot.SetActive(false);
+            var rootToDeactivate = spawnPointRoot.transform.parent != null
+                ? spawnPointRoot.transform.parent.gameObject
+                : spawnPointRoot;
+            rootToDeactivate.SetActive(false);
         }
     }
 
