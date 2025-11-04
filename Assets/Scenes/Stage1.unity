@@ -31363,7 +31363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d589f528bd4d043a6d7cb1f8223d6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeLimit: 999999
+  timeLimit: 60
   timerTextVertical: {fileID: 1756587586}
   timerTextHorizontal: {fileID: 1960546124}
   resultVertical: {fileID: 224808253}
