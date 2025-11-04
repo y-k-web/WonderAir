@@ -23,17 +23,7 @@ namespace RageRunGames.EasyFlyingSystem
         [Header("Quick Stop Settings")]
         [SerializeField] private float quickStopInputThreshold = 0.1f;
 
-        [Header("Quick Slide Settings")]
-        [SerializeField] private bool enableQuickSlide = true;
-        [SerializeField, Range(0f, 1f)] private float quickSlideActivationPitchThreshold = 0.4f;
-        [SerializeField, Range(0f, 1f)] private float quickSlideReleasePitchThreshold = 0.05f;
-        [SerializeField, Range(0f, 1f)] private float quickSlideInputThreshold = 0.25f;
-        [SerializeField] private float quickSlideWindowDuration = 0.25f;
-        [SerializeField] private float quickSlideVelocityChange = 2f;
-        [SerializeField] private float quickSlideDistance = 2f;
-        [SerializeField] private float quickSlideMinForwardSpeed = 1f;
-
-        [Header("Ground Settings")]
+        [Header("Ground Settings")] 
         [SerializeField] protected float groundCheckDistance = 0.2f;
 
         [SerializeField] protected bool decelerateOnGround;
@@ -47,14 +37,6 @@ namespace RageRunGames.EasyFlyingSystem
 
 
         private float timer;
-        private float previousPitchInput;
-        private float quickSlideTimer;
-        private bool quickSlideWindowActive;
-        private bool quickSlideMovementActive;
-        private float quickSlideMovementElapsed;
-        private float quickSlideMovementDuration;
-        private Vector3 quickSlideTargetOffset;
-        private Vector3 quickSlideAppliedOffset;
 
         private BaseInputHandler currentInputHandler;
         private BoostController boostController;
@@ -131,8 +113,6 @@ namespace RageRunGames.EasyFlyingSystem
                 disablePitch ? Vector3.zero : pitchInput * maxSpeed * transform.forward;
             float forwardSpeed = Vector3.Dot(rb.velocity, transform.forward);
 
-            HandleQuickSlide(pitchInput, inputHandler.Roll, inputHandler.Yaw, forwardSpeed);
-
             if (!IsBoosting() &&
                 Mathf.Abs(pitchInput) >= quickStopInputThreshold &&
                 ((forwardSpeed > 0f && pitchInput < 0f) ||
@@ -162,123 +142,12 @@ namespace RageRunGames.EasyFlyingSystem
             }
 
             rb.AddForce(forwardForce + liftForce + sidewaysForce, ForceMode.Force);
-            UpdateQuickSlideMovement();
             AdjustDrag(rb.velocity.magnitude);
-            previousPitchInput = pitchInput;
         }
 
         private bool IsBoosting()
         {
             return boostController != null && boostController.IsBoosting;
-        }
-
-        private void HandleQuickSlide(float pitchInput, float rollInput, float yawInput, float forwardSpeed)
-        {
-            if (!enableQuickSlide)
-            {
-                quickSlideWindowActive = false;
-                quickSlideTimer = 0f;
-                return;
-            }
-
-            if (!quickSlideWindowActive)
-            {
-                bool wasMovingForward = previousPitchInput > quickSlideActivationPitchThreshold;
-                bool hasReleasedForward = Mathf.Abs(pitchInput) <= quickSlideReleasePitchThreshold;
-                bool isMovingForward = forwardSpeed > quickSlideMinForwardSpeed;
-
-                if (wasMovingForward && hasReleasedForward && isMovingForward)
-                {
-                    quickSlideWindowActive = true;
-                    quickSlideTimer = quickSlideWindowDuration;
-                }
-            }
-            else
-            {
-                quickSlideTimer -= Time.deltaTime;
-
-                if (quickSlideTimer <= 0f)
-                {
-                    quickSlideWindowActive = false;
-                }
-                else
-                {
-                    float quickSlideAxis = Mathf.Abs(yawInput) >= quickSlideInputThreshold
-                        ? yawInput
-                        : Mathf.Abs(rollInput) >= quickSlideInputThreshold
-                            ? rollInput
-                            : 0f;
-
-                    if (Mathf.Abs(quickSlideAxis) >= quickSlideInputThreshold)
-                    {
-                        Vector3 slideDirection = Vector3.ProjectOnPlane(transform.right * Mathf.Sign(quickSlideAxis), Vector3.up);
-
-                        if (slideDirection.sqrMagnitude > 0f)
-                        {
-                            StartQuickSlide(slideDirection.normalized);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void StartQuickSlide(Vector3 slideDirection)
-        {
-            quickSlideWindowActive = false;
-
-            if (quickSlideDistance <= 0f)
-            {
-                quickSlideMovementActive = false;
-                return;
-            }
-
-            quickSlideTargetOffset = slideDirection * quickSlideDistance;
-            quickSlideMovementDuration = quickSlideVelocityChange > Mathf.Epsilon
-                ? quickSlideDistance / quickSlideVelocityChange
-                : 0f;
-            quickSlideMovementElapsed = 0f;
-            quickSlideAppliedOffset = Vector3.zero;
-            quickSlideMovementActive = true;
-        }
-
-        private void UpdateQuickSlideMovement()
-        {
-            if (!quickSlideMovementActive)
-            {
-                return;
-            }
-
-            float deltaTime = Time.deltaTime;
-
-            if (quickSlideMovementDuration <= Mathf.Epsilon)
-            {
-                Vector3 remainingOffset = quickSlideTargetOffset - quickSlideAppliedOffset;
-
-                if (remainingOffset.sqrMagnitude > 0f)
-                {
-                    rb.MovePosition(rb.position + remainingOffset);
-                    quickSlideAppliedOffset += remainingOffset;
-                }
-
-                quickSlideMovementActive = false;
-                return;
-            }
-
-            quickSlideMovementElapsed += deltaTime;
-            float progress = Mathf.Clamp01(quickSlideMovementElapsed / quickSlideMovementDuration);
-            Vector3 desiredOffset = quickSlideTargetOffset * progress;
-            Vector3 offsetDelta = desiredOffset - quickSlideAppliedOffset;
-
-            if (offsetDelta.sqrMagnitude > 0f)
-            {
-                rb.MovePosition(rb.position + offsetDelta);
-                quickSlideAppliedOffset += offsetDelta;
-            }
-
-            if (progress >= 1f)
-            {
-                quickSlideMovementActive = false;
-            }
         }
 
         private void AdjustDrag(float speed)
