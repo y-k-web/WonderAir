@@ -71,6 +71,7 @@ namespace RageRunGames.EasyFlyingSystem
             // 抗力の初期値を設定
             rb.drag = baseDrag;
             boostController = GetComponent<BoostController>();
+            desiredPlanarDirection = transform.forward;
         }
 
         protected override void Update()
@@ -95,7 +96,7 @@ namespace RageRunGames.EasyFlyingSystem
 
             Vector3 yawRef = desiredPlanarDirection.sqrMagnitude > 0.0001f
                 ? desiredPlanarDirection
-                : transform.forward;
+                : (currentPlanarVelocity.sqrMagnitude > 0.25f ? currentPlanarVelocity.normalized : transform.forward);
 
             float targetYaw = Quaternion.LookRotation(yawRef, Vector3.up).eulerAngles.y;
             currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * turnResponsiveness);
@@ -183,11 +184,18 @@ namespace RageRunGames.EasyFlyingSystem
                 inputMagnitude = 1f;
             }
 
-            desiredPlanarDirection = desiredDir;
-
             Vector3 velocity = rb.velocity;
             Vector3 planarVelocity = new Vector3(velocity.x, 0f, velocity.z);
             currentPlanarVelocity = planarVelocity;
+
+            if (desiredDir.sqrMagnitude > 0.0001f)
+            {
+                desiredPlanarDirection = desiredDir;
+            }
+            else if (planarVelocity.sqrMagnitude > 0.25f)
+            {
+                desiredPlanarDirection = planarVelocity.normalized;
+            }
 
             float accel = inputMagnitude > 0.05f ? acceleration : deceleration;
             Vector3 planarDelta = desiredPlanarVel - planarVelocity;
