@@ -93,10 +93,9 @@ namespace RageRunGames.EasyFlyingSystem
         {
             base.HandleRotations();
 
-            Vector3 planarVel = currentPlanarVelocity;
             Vector3 yawRef = desiredPlanarDirection.sqrMagnitude > 0.0001f
                 ? desiredPlanarDirection
-                : (planarVel.sqrMagnitude > 0.25f ? planarVel.normalized : transform.forward);
+                : transform.forward;
 
             float targetYaw = Quaternion.LookRotation(yawRef, Vector3.up).eulerAngles.y;
             currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * turnResponsiveness);
@@ -120,12 +119,9 @@ namespace RageRunGames.EasyFlyingSystem
 
         protected override void UpdateMovement(IInputHandler inputHandler)
         {
-            Transform reference = headingReference;
-            if (reference == null)
-            {
-                Camera mainCam = Camera.main;
-                reference = mainCam != null ? mainCam.transform : transform;
-            }
+            Transform reference = headingReference != null
+                ? headingReference
+                : (Camera.main != null ? Camera.main.transform : transform);
 
             Vector2 planarInput = new Vector2(inputHandler.Roll, inputHandler.Pitch);
             if (disableRoll)
