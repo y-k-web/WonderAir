@@ -218,7 +218,8 @@ public class ScoreManager : MonoBehaviour
             bgmSource.Play();
         }
 
-        string[] names = { "one", "two", "three", "four", "five", "six" };
+        // string[] names = { "one", "two", "three", "four", "five", "six" };
+        string[] names = {"one"};
         chainClips = new AudioClip[names.Length];
         for (int i = 0; i < names.Length; i++)
         {

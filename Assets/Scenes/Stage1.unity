@@ -23637,11 +23637,42 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -8803937527578110353, guid: d14fd5f6f064e014a9dc3dc287e5e72e, type: 3}
+--- !u!1 &1509906060 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3063136933731004549, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+  m_PrefabInstance: {fileID: 8936592596119597619}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1509906064 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2434655621733820991, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+  m_PrefabInstance: {fileID: 8936592596119597619}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &1509906065 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 8586551085461139525, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
   m_PrefabInstance: {fileID: 8936592596119597619}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1509906066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509906060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e6f70b6bc187ac4db73a0197019fdc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 890181062}
+  visual: {fileID: 1509906064}
+  maxBankDegrees: 45
+  maxPitchDegrees: 90
+  bankResponse: 8
+  pitchResponse: 8
+  autoLevelSpeed: 3
+  yawInput: 0
+  pitchInput: 0
 --- !u!1001 &1510444268
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31713,9 +31744,9 @@ MonoBehaviour:
   timerController: {fileID: 0}
   chainTime: 2
   chainMultiplier: 1.25
-  bgmVolume: 0.063
+  bgmVolume: 0.1
   bgmStartTime: 0
-  sfxVolume: 1
+  sfxVolume: 0.1
 --- !u!114 &1984864535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51395,6 +51426,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7294074701717934853, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597621, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: m_Camera
       value: 
@@ -51420,8 +51455,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1509906065}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: fallAccel
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: yawFactor
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: boostSpeed
@@ -51449,7 +51488,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: pitchFactor
-      value: 10
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: maxFallSpeed
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: forwardAction
@@ -51460,6 +51503,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: virtualCamera
+      value: 
+      objectReference: {fileID: 353596063}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: boostTapAction
       value: 
       objectReference: {fileID: -2862290655023632961, guid: 0afaa409eed4bb241baa26b99707a6e8, type: 3}
@@ -51468,9 +51515,37 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8936592596119597627}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: maxPitchDegrees
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: boostFovIncrease
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: fallDelaySeconds
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: visualStabilizer
+      value: 
+      objectReference: {fileID: 1509906066}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: forwardHoldAction
       value: 
       objectReference: {fileID: -4881819315457098383, guid: 0afaa409eed4bb241baa26b99707a6e8, type: 3}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: visualInputDamping
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: boostFovAdjustSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
+      propertyPath: pitchAutoLevelSpeed
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8936592596119597623, guid: b0763faaa14dd8d46a7adcad8e383994, type: 3}
       propertyPath: lookAction.m_Action.m_Name
       value: Look
@@ -51531,7 +51606,7 @@ MonoBehaviour:
   maxBoost: 100
   boostConsumptionRate: 12
   boostRechargeRate: 10
-  boostSpeedMultiplier: 2
+  boostSpeedMultiplier: 1.5
   boostAction: {fileID: -2862290655023632961, guid: 0afaa409eed4bb241baa26b99707a6e8, type: 3}
   leftHandParticle: {fileID: 1589113135}
   rightHandParticle: {fileID: 1974051274}
