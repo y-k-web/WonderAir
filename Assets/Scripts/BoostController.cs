@@ -53,7 +53,7 @@ public class BoostController : MonoBehaviour
 
         ConfigureBoostUI();
         UpdateBoostUI();
-        SetBoostUIVisibility(isBoosting);
+        SetBoostUIVisibility(ShouldShowBoostUI());
     }
 
     private void OnDisable()
@@ -89,6 +89,7 @@ public class BoostController : MonoBehaviour
         }
 
         UpdateBoostUI();
+        SetBoostUIVisibility(ShouldShowBoostUI());
     }
 
     private void OnBoostPerformed(InputAction.CallbackContext ctx)
@@ -103,14 +104,14 @@ public class BoostController : MonoBehaviour
         if (currentBoost <= 0f) return;
         isBoosting = true;
         SetFXColor(Color.yellow, Color.yellow);
-        SetBoostUIVisibility(true);
+        SetBoostUIVisibility(ShouldShowBoostUI());
     }
 
     public void DisableBoost()
     {
         isBoosting = false;
         SetFXColor(leftOriginalColor, rightOriginalColor);
-        SetBoostUIVisibility(false);
+        SetBoostUIVisibility(ShouldShowBoostUI());
     }
 
     public void ToggleBoost()  // UIボタンからも呼べるように
@@ -123,6 +124,7 @@ public class BoostController : MonoBehaviour
     {
         currentBoost = Mathf.Clamp(currentBoost + Mathf.Abs(amount), 0f, maxBoost);
         UpdateBoostUI();
+        SetBoostUIVisibility(ShouldShowBoostUI());
     }
 
     private void UpdateBoostUI()
@@ -154,23 +156,23 @@ public class BoostController : MonoBehaviour
         if (rect)
         {
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(120f, 0f);
-            rect.sizeDelta = new Vector2(40f, 200f);
+            rect.anchoredPosition = new Vector2(90f, 0f);
+            rect.sizeDelta = new Vector2(18f, 140f);
         }
 
         RectTransform fillArea = slider.transform.Find("Fill Area") as RectTransform;
         if (fillArea)
         {
-            fillArea.anchorMin = new Vector2(0.2f, 0f);
-            fillArea.anchorMax = new Vector2(0.8f, 1f);
+            fillArea.anchorMin = new Vector2(0.25f, 0f);
+            fillArea.anchorMax = new Vector2(0.75f, 1f);
             fillArea.sizeDelta = Vector2.zero;
         }
 
         RectTransform background = slider.transform.Find("Background") as RectTransform;
         if (background)
         {
-            background.anchorMin = new Vector2(0.2f, 0f);
-            background.anchorMax = new Vector2(0.8f, 1f);
+            background.anchorMin = new Vector2(0.25f, 0f);
+            background.anchorMax = new Vector2(0.75f, 1f);
             background.sizeDelta = Vector2.zero;
         }
 
@@ -187,8 +189,8 @@ public class BoostController : MonoBehaviour
         {
             label.anchorMin = label.anchorMax = new Vector2(1f, 0.5f);
             label.pivot = new Vector2(0f, 0.5f);
-            label.anchoredPosition = new Vector2(30f, 0f);
-            label.sizeDelta = new Vector2(80f, 30f);
+            label.anchoredPosition = new Vector2(24f, 0f);
+            label.sizeDelta = new Vector2(70f, 24f);
 
             TextMeshProUGUI labelText = label.GetComponent<TextMeshProUGUI>();
             if (labelText)
@@ -197,6 +199,11 @@ public class BoostController : MonoBehaviour
                 labelText.enableWordWrapping = false;
             }
         }
+    }
+
+    private bool ShouldShowBoostUI()
+    {
+        return isBoosting || currentBoost < maxBoost;
     }
 
     private void SetBoostUIVisibility(bool visible)
