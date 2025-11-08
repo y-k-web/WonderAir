@@ -1,21 +1,13 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using RageRunGames.EasyFlyingSystem; // DroneControllerが含まれているnamespaceを追加
 
 public class GameOverController : MonoBehaviour
 {
     public GameObject result; // ゲームオーバー画面のUIパネル
-    [SerializeField] private DroneController droneController; // DroneController への参照
 
     void Start()
     {
-        // ゲームオーバー画面を非表示にする
-        result.SetActive(false);
 
-        if (droneController == null)
-        {
-            Debug.LogError("DroneController が見つかりません。正しくアタッチされているか確認してください。");
-        }
     }
 
     // リトライボタンがクリックされたときの処理

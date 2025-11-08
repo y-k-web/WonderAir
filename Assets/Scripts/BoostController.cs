@@ -20,8 +20,6 @@ public class BoostController : MonoBehaviour
 
     private bool isBoosting = false;  // ブーストが有効かどうか
     private float currentBoost;       // 現在のブースト量
-
-    private RageRunGames.EasyFlyingSystem.DroneController droneController; // ドローン制御用の参照
     private float originalMaxSpeed;   // 初期の最大速度を保存
     private Color leftOriginalColor;   // 左手パーティクルの元の色
     private Color rightOriginalColor;  // 右手パーティクルの元の色

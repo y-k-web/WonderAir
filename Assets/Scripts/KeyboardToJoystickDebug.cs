@@ -5,7 +5,6 @@ namespace RageRunGames.EasyFlyingSystem
     [DisallowMultipleComponent]
     public class KeyboardToJoystickDebug : MonoBehaviour
     {
-        [SerializeField] private MobileController mobileController; // MobileControllerの参照
         [SerializeField] private bool enableDebugInput = true;      // デバッグ入力を有効化
         [SerializeField] private bool enableHorizontalInput = true; // 水平軸の入力を有効化
         private bool wasKeyboardInput = false; // 前フレームでキーボード入力があったか
@@ -13,15 +12,7 @@ namespace RageRunGames.EasyFlyingSystem
 
         private void Start()
         {
-            // MobileController の参照を自動取得
-            if (mobileController == null)
-            {
-                mobileController = GetComponent<MobileController>();
-                if (mobileController == null)
-                {
-                    Debug.LogError("MobileController is not assigned or attached to this GameObject.");
-                }
-            }
+
         }
 
         private void Update()
@@ -59,19 +50,17 @@ namespace RageRunGames.EasyFlyingSystem
                 }
             }
 
-            Vector2 baseInput = mobileController.CurrentInput - lastAppliedKeyboardVector;
+            Vector2 baseInput = CurrentInput - lastAppliedKeyboardVector;
 
             if (hasInput)
             {
                 Vector2 keyboardVector = new Vector2(horizontalInput, verticalInput);
                 Vector2 combined = Vector2.ClampMagnitude(baseInput + keyboardVector, 1f);
                 lastAppliedKeyboardVector = combined - baseInput;
-                mobileController.SetDebugInput(combined);
                 wasKeyboardInput = true;
             }
             else if (wasKeyboardInput)
             {
-                mobileController.SetDebugInput(baseInput);
                 lastAppliedKeyboardVector = Vector2.zero;
                 wasKeyboardInput = false;
             }
