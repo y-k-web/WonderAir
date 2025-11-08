@@ -16,6 +16,15 @@ namespace RageRunGames.EasyFlyingSystem
         private Vector2 debugContribution;
 
         /// <summary>
+        /// Determines whether the legacy Unity input axes should be sampled when no other input provider is used.
+        /// </summary>
+        public bool UseUnityInputFallback
+        {
+            get => useUnityInputFallback;
+            set => useUnityInputFallback = value;
+        }
+
+        /// <summary>
         /// Current input vector after combining base input and debug contribution.
         /// </summary>
         public Vector2 CurrentInput => Vector2.ClampMagnitude(baseInput + debugContribution, 1f);

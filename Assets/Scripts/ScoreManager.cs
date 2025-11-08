@@ -26,7 +26,6 @@ public class ScoreManager : MonoBehaviour
 
     private int keyCount = 0;
     private int score = 0;
-    private int lastSpawnScore = 0;
     private int chainCount = 0;
     private float lastItemTime;
     public float chainTime = 0.5f;
@@ -89,12 +88,7 @@ public class ScoreManager : MonoBehaviour
             chainTextVertical.gameObject.SetActive(false);
         }
 
-        // スコアが閾値を超える場合にオブジェクトをスポーン
-        // if (score - lastSpawnScore >= 1000)
-        // {
-        //     lastSpawnScore = score;
-        //     objectSpawner.SpawnObject();
-        // }
+        // スコアが一定量増加した際にスポーンさせたい場合は、前回スポーン時のスコアを別途保持して判定する
 
         // スコアが特定の閾値を超える場合にオブジェクトをスポーン
         for (int i = 0; i < scoreThresholds.Length; i++)

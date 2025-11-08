@@ -15,6 +15,15 @@ public class TimerController : MonoBehaviour
     public GameObject resultVertical; // 縦向きのときに表示するゲームオーバー画面
     public GameObject resultHorizontal; // 横向きのときに表示するゲームオーバー画面
     [SerializeField] private ScoreManager scoreManager; // ScoreManagerへの参照
+    [SerializeField] private DroneController droneController; // ゲーム中の操作を行う DroneController
+
+    private void Awake()
+    {
+        if (droneController == null)
+        {
+            droneController = FindObjectOfType<DroneController>();
+        }
+    }
 
     void Start()
     {
