@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                using System;
+using System;
 using System.Reflection;
 using Cinemachine;
 using UnityEngine;
@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     public float normalSpeed = 6f;
-    public float yawFactor   = 90f;
+    public float yawFactor = 90f;
     public float pitchFactor = 90f;
 
     [Header("Orientation")]
@@ -29,8 +29,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Gentle Fall (前進停止後の自然落下)")]
     public float fallDelaySeconds = 0.5f;   // 何秒後に落下開始
-    public float fallAccel        = 2.0f;   // 落下加速度(擬似)
-    public float maxFallSpeed     = 3.0f;   // 最大落下速度(絶対値)
+    public float fallAccel = 2.0f;   // 落下加速度(擬似)
+    public float maxFallSpeed = 3.0f;   // 最大落下速度(絶対値)
 
     [Header("Refs")]
     public BoostController boost;   // ← BoostController をドラッグで割り当て
@@ -52,17 +52,19 @@ public class PlayerController : MonoBehaviour
     private float inertiaSpeed = 0f;
     private float defaultCameraFov;
     private bool cameraFovCached;
+    private bool wasBoosting;
+    private float baseFovAtBoost;
 
     void OnEnable()
     {
         Enable(forwardAction, OnForward);
-        Enable(dragAction,    OnDrag);
+        Enable(dragAction, OnDrag);
         Debug.Log("[PlayerController] Input ENABLED");
     }
     void OnDisable()
     {
         Disable(forwardAction, OnForward);
-        Disable(dragAction,    OnDrag);
+        Disable(dragAction, OnDrag);
         Debug.Log("[PlayerController] Input DISABLED");
     }
 
@@ -70,7 +72,7 @@ public class PlayerController : MonoBehaviour
     {
         // 速度決定：BoostController の倍率を採用
         float speedMul = (boost != null) ? boost.CurrentSpeedMultiplier : 1f;
-        float speed    = normalSpeed * speedMul;
+        float speed = normalSpeed * speedMul;
         bool isBoosting = boost && boost.IsBoosting;
 
         if (!virtualCamera && boostFovIncrease != 0f)
@@ -82,24 +84,39 @@ public class PlayerController : MonoBehaviour
         }
         if (virtualCamera)
         {
-            if (!cameraFovCached)
+
+            // ブースト開始時に、その瞬間のFOVを基準として記録
+            if (isBoosting && !wasBoosting)
+                baseFovAtBoost = virtualCamera.m_Lens.FieldOfView;
+
+            // 目標FOVは「基準＋増分」。ブーストしていない時は触らない
+            if (isBoosting)
             {
-                defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
-                cameraFovCached = true;
+                float target = baseFovAtBoost + Mathf.Max(0f, boostFovIncrease);
+                float current = virtualCamera.m_Lens.FieldOfView;
+                float next = (boostFovAdjustSpeed > 0f)
+                    ? Mathf.MoveTowards(current, target, boostFovAdjustSpeed * Time.deltaTime)
+                    : target;
+                virtualCamera.m_Lens.FieldOfView = next;
             }
-            float targetFov = defaultCameraFov + (isBoosting ? boostFovIncrease : 0f);
-            float currentFov = virtualCamera.m_Lens.FieldOfView;
-            float newFov = (boostFovAdjustSpeed > 0f)
-                ? Mathf.MoveTowards(currentFov, targetFov, boostFovAdjustSpeed * Time.deltaTime)
-                : targetFov;
-            virtualCamera.m_Lens.FieldOfView = newFov;
+            else if (wasBoosting)
+            {
+                // ブーストが終わった直後だけ、基準にスムーズに戻す
+                float current = virtualCamera.m_Lens.FieldOfView;
+                float next = (boostFovAdjustSpeed > 0f)
+                    ? Mathf.MoveTowards(current, baseFovAtBoost, boostFovAdjustSpeed * Time.deltaTime)
+                    : baseFovAtBoost;
+                virtualCamera.m_Lens.FieldOfView = next;
+            }
+
+            wasBoosting = isBoosting;
         }
 
         // アニメーター
         if (animator)
         {
             bool isFlying = forwardHeld || inertiaTimer > 0f;
-            animator.SetBool("IsFlying",   isFlying);
+            animator.SetBool("IsFlying", isFlying);
             if (boost) animator.SetBool("IsBoosting", isBoosting);
         }
 
@@ -180,16 +197,16 @@ public class PlayerController : MonoBehaviour
     {
         if (!r) { Debug.LogWarning("InputActionReference not set"); return; }
         r.action.Enable();
-        r.action.started   += cb;
+        r.action.started += cb;
         r.action.performed += cb;
-        r.action.canceled  += cb;
+        r.action.canceled += cb;
     }
     private static void Disable(InputActionReference r, System.Action<InputAction.CallbackContext> cb)
     {
         if (!r) return;
-        r.action.started   -= cb;
+        r.action.started -= cb;
         r.action.performed -= cb;
-        r.action.canceled  -= cb;
+        r.action.canceled -= cb;
         r.action.Disable();
     }
 
