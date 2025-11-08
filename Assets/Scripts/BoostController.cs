@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -50,7 +51,9 @@ public class BoostController : MonoBehaviour
         if (leftHandParticle)  leftOriginalColor  = leftHandParticle.main.startColor.color;
         if (rightHandParticle) rightOriginalColor = rightHandParticle.main.startColor.color;
 
+        ConfigureBoostUI();
         UpdateBoostUI();
+        SetBoostUIVisibility(isBoosting);
     }
 
     private void OnDisable()
@@ -60,6 +63,8 @@ public class BoostController : MonoBehaviour
             boostAction.action.performed -= OnBoostPerformed;
             boostAction.action.Disable();
         }
+
+        SetBoostUIVisibility(false);
     }
 
     private void Update()
@@ -98,12 +103,14 @@ public class BoostController : MonoBehaviour
         if (currentBoost <= 0f) return;
         isBoosting = true;
         SetFXColor(Color.yellow, Color.yellow);
+        SetBoostUIVisibility(true);
     }
 
     public void DisableBoost()
     {
         isBoosting = false;
         SetFXColor(leftOriginalColor, rightOriginalColor);
+        SetBoostUIVisibility(false);
     }
 
     public void ToggleBoost()  // UIボタンからも呼べるように
@@ -121,8 +128,93 @@ public class BoostController : MonoBehaviour
     private void UpdateBoostUI()
     {
         float v = (maxBoost <= 0f) ? 0f : currentBoost / maxBoost;
-        if (boostBarVertical)   boostBarVertical.value = v;
-        if (boostBarHorizontal) boostBarHorizontal.value = v;
+        if (boostBarVertical)
+        {
+            boostBarVertical.value = v;
+        }
+        if (boostBarHorizontal)
+        {
+            boostBarHorizontal.value = v;
+        }
+    }
+
+    private void ConfigureBoostUI()
+    {
+        ConfigureBoostSlider(boostBarVertical);
+        ConfigureBoostSlider(boostBarHorizontal);
+    }
+
+    private void ConfigureBoostSlider(Slider slider)
+    {
+        if (!slider) return;
+
+        slider.direction = Slider.Direction.BottomToTop;
+
+        RectTransform rect = slider.GetComponent<RectTransform>();
+        if (rect)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(120f, 0f);
+            rect.sizeDelta = new Vector2(40f, 200f);
+        }
+
+        RectTransform fillArea = slider.transform.Find("Fill Area") as RectTransform;
+        if (fillArea)
+        {
+            fillArea.anchorMin = new Vector2(0.2f, 0f);
+            fillArea.anchorMax = new Vector2(0.8f, 1f);
+            fillArea.sizeDelta = Vector2.zero;
+        }
+
+        RectTransform background = slider.transform.Find("Background") as RectTransform;
+        if (background)
+        {
+            background.anchorMin = new Vector2(0.2f, 0f);
+            background.anchorMax = new Vector2(0.8f, 1f);
+            background.sizeDelta = Vector2.zero;
+        }
+
+        if (slider.fillRect)
+        {
+            RectTransform fill = slider.fillRect;
+            fill.anchorMin = new Vector2(0f, 0f);
+            fill.anchorMax = new Vector2(1f, 1f);
+            fill.pivot = new Vector2(0.5f, 0f);
+        }
+
+        RectTransform label = slider.transform.Find("Text (TMP)") as RectTransform;
+        if (label)
+        {
+            label.anchorMin = label.anchorMax = new Vector2(1f, 0.5f);
+            label.pivot = new Vector2(0f, 0.5f);
+            label.anchoredPosition = new Vector2(30f, 0f);
+            label.sizeDelta = new Vector2(80f, 30f);
+
+            TextMeshProUGUI labelText = label.GetComponent<TextMeshProUGUI>();
+            if (labelText)
+            {
+                labelText.alignment = TextAlignmentOptions.Left;
+                labelText.enableWordWrapping = false;
+            }
+        }
+    }
+
+    private void SetBoostUIVisibility(bool visible)
+    {
+        if (boostBarVertical)
+        {
+            if (boostBarVertical.gameObject.activeSelf != visible)
+            {
+                boostBarVertical.gameObject.SetActive(visible);
+            }
+        }
+        if (boostBarHorizontal)
+        {
+            if (boostBarHorizontal.gameObject.activeSelf != visible)
+            {
+                boostBarHorizontal.gameObject.SetActive(visible);
+            }
+        }
     }
 
     private void SetFXColor(Color leftColor, Color rightColor)
