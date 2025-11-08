@@ -1,6 +1,8 @@
+using System;
+using System.Reflection;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -304,13 +306,72 @@ public class PlayerController : MonoBehaviour
         }
 
         var transposer = virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
-        if (transposer != null)
-            transposer.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+        ApplyWorldUpBinding(transposer);
 
         var thirdPerson = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
-        if (thirdPerson != null)
-            thirdPerson.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+        ApplyWorldUpBinding(thirdPerson);
 
         virtualCamera.m_Lens.Dutch = 0f;
+    }
+
+    private static readonly string[] bindingModeMemberNames = { "m_BindingMode", "BindingMode" };
+    private static readonly string[] preferredBindingModes =
+    {
+        "WorldSpace",
+        "LockToTargetWithWorldUp",
+        "LockToTargetNoRoll"
+    };
+
+    private void ApplyWorldUpBinding(object component)
+    {
+        if (component == null)
+            return;
+
+        Type type = component.GetType();
+        foreach (string memberName in bindingModeMemberNames)
+        {
+            FieldInfo field = type.GetField(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (TryAssignBindingMode(field, component))
+                return;
+
+            PropertyInfo property = type.GetProperty(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (TryAssignBindingMode(property, component))
+                return;
+        }
+    }
+
+    private bool TryAssignBindingMode(FieldInfo field, object instance)
+    {
+        if (field == null || !field.FieldType.IsEnum)
+            return false;
+
+        return TryAssignEnumValue(field.FieldType, value => field.SetValue(instance, value));
+    }
+
+    private bool TryAssignBindingMode(PropertyInfo property, object instance)
+    {
+        if (property == null || !property.CanWrite || !property.PropertyType.IsEnum)
+            return false;
+
+        return TryAssignEnumValue(property.PropertyType, value => property.SetValue(instance, value));
+    }
+
+    private bool TryAssignEnumValue(Type enumType, Action<object> assign)
+    {
+        string[] enumNames = Enum.GetNames(enumType);
+        foreach (string option in preferredBindingModes)
+        {
+            foreach (string name in enumNames)
+            {
+                if (string.Equals(name, option, StringComparison.OrdinalIgnoreCase))
+                {
+                    object parsed = Enum.Parse(enumType, name);
+                    assign(parsed);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
