@@ -13,6 +13,12 @@ public class PlayerController : MonoBehaviour
     public float yawFactor   = 90f;
     public float pitchFactor = 90f;
 
+    [Header("Orientation")]
+    [SerializeField] private PlayerVisualStabilizer visualStabilizer;
+    [SerializeField] private float maxPitchDegrees = 20f;
+    [SerializeField] private float pitchAutoLevelSpeed = 4f;
+    [SerializeField] private float visualInputDamping = 8f;
+
     [Header("Forward Inertia")]
     [Tooltip("前進を止めた後に慣性として維持する時間（秒）")]
     public float inertiaDuration = 0.35f;
@@ -34,6 +40,9 @@ public class PlayerController : MonoBehaviour
     // runtime state
     private bool forwardHeld;
     private Vector2 drag;
+    private float yawAngle;
+    private float currentPitch;
+    private Vector2 smoothedVisualInput;
     private float timeSinceForwardReleased = 0f;
     private float verticalVel = 0f; // 自然落下用（Rigidbody非使用の簡易実装）
     private float inertiaTimer = 0f;
@@ -66,6 +75,8 @@ public class PlayerController : MonoBehaviour
         {
             // 保険で開始時に取得できなかった場合に探して記録
             virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+            if (virtualCamera)
+                ConfigureCameraWorldUp();
         }
         if (virtualCamera)
         {
@@ -90,10 +101,13 @@ public class PlayerController : MonoBehaviour
             if (boost) animator.SetBool("IsBoosting", isBoosting);
         }
 
+        UpdateOrientation(Time.deltaTime);
+        Vector3 forwardDirection = GetCurrentForward();
+
         // 前進
         if (forwardHeld)
         {
-            transform.position += transform.forward * speed * Time.deltaTime;
+            transform.position += forwardDirection * speed * Time.deltaTime;
 
             // 前進中は落下リセット
             timeSinceForwardReleased = 0f;
@@ -132,10 +146,6 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-
-        // ドラッグで機体を向ける
-        var d = drag * Time.deltaTime; // 秒間回転量に
-        transform.Rotate(-d.y * pitchFactor, d.x * yawFactor, 0f, Space.Self);
 
         // デバッグ（必要なら）
         // Debug.Log($"FWD:{forwardHeld} BOOST:{(boost?boost.IsBoosting:false)} MUL:{speedMul:F2} Vv:{verticalVel:F2}");
@@ -190,13 +200,26 @@ public class PlayerController : MonoBehaviour
         }
 
         inertiaTimer = inertiaDuration;
-        inertiaDirection = transform.forward;
+        inertiaDirection = GetCurrentForward();
         float speedMul = (boost != null) ? boost.CurrentSpeedMultiplier : 1f;
         inertiaSpeed = normalSpeed * speedMul;
     }
 
     void Awake()
     {
+        yawAngle = transform.eulerAngles.y;
+        if (!visualStabilizer)
+        {
+            visualStabilizer = GetComponent<PlayerVisualStabilizer>();
+            if (!visualStabilizer)
+                visualStabilizer = GetComponentInChildren<PlayerVisualStabilizer>();
+        }
+
+        if (visualStabilizer && visualStabilizer.root == null)
+        {
+            visualStabilizer.root = transform;
+        }
+
         if (!virtualCamera)
         {
             virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
@@ -206,6 +229,88 @@ public class PlayerController : MonoBehaviour
         {
             defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
             cameraFovCached = true;
+            ConfigureCameraWorldUp();
         }
+    }
+
+    private void UpdateOrientation(float deltaTime)
+    {
+        // yaw
+        if (Mathf.Abs(drag.x) > 0.0001f)
+        {
+            float yawDelta = drag.x * yawFactor * deltaTime;
+            yawAngle += yawDelta;
+            yawAngle = Mathf.Repeat(yawAngle, 360f);
+        }
+
+        // pitch
+        float pitchLimit = visualStabilizer ? visualStabilizer.maxPitchDegrees : maxPitchDegrees;
+        if (Mathf.Abs(drag.y) > 0.0001f)
+        {
+            float pitchDelta = -drag.y * pitchFactor * deltaTime;
+            currentPitch = Mathf.Clamp(currentPitch + pitchDelta, -pitchLimit, pitchLimit);
+        }
+        else if (!Mathf.Approximately(currentPitch, 0f))
+        {
+            currentPitch = Mathf.MoveTowards(currentPitch, 0f, pitchAutoLevelSpeed * deltaTime);
+        }
+
+        transform.rotation = Quaternion.Euler(0f, yawAngle, 0f);
+
+        UpdateVisualInputs(deltaTime);
+    }
+
+    private void UpdateVisualInputs(float deltaTime)
+    {
+        if (!visualStabilizer) return;
+
+        Vector2 desired = new Vector2(
+            Mathf.Clamp(drag.x, -1f, 1f),
+            Mathf.Clamp(-drag.y, -1f, 1f)
+        );
+
+        float step = Mathf.Max(visualInputDamping, 0.01f) * deltaTime;
+        smoothedVisualInput = Vector2.MoveTowards(smoothedVisualInput, desired, step);
+
+        visualStabilizer.yawInput = smoothedVisualInput.x;
+        visualStabilizer.pitchInput = smoothedVisualInput.y;
+    }
+
+    private Vector3 GetCurrentForward()
+    {
+        Quaternion yawRotation = Quaternion.Euler(0f, yawAngle, 0f);
+        Quaternion pitchRotation = Quaternion.AngleAxis(currentPitch, Vector3.right);
+        Quaternion combined = yawRotation * pitchRotation;
+        return combined * Vector3.forward;
+    }
+
+    private void ConfigureCameraWorldUp()
+    {
+        if (!virtualCamera) return;
+
+        if (visualStabilizer)
+        {
+            if (virtualCamera.Follow == null || virtualCamera.Follow == visualStabilizer.visual)
+                virtualCamera.Follow = transform;
+            if (virtualCamera.LookAt == null || virtualCamera.LookAt == visualStabilizer.visual)
+                virtualCamera.LookAt = transform;
+        }
+        else
+        {
+            if (virtualCamera.Follow != transform)
+                virtualCamera.Follow = transform;
+            if (virtualCamera.LookAt != transform)
+                virtualCamera.LookAt = transform;
+        }
+
+        var transposer = virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
+        if (transposer != null)
+            transposer.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+
+        var thirdPerson = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+        if (thirdPerson != null)
+            thirdPerson.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+
+        virtualCamera.m_Lens.Dutch = 0f;
     }
 }
