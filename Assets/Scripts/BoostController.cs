@@ -9,6 +9,10 @@ public class BoostController : MonoBehaviour
     [SerializeField] private Slider boostBarVertical;
     [SerializeField] private Slider boostBarHorizontal;
 
+    [Header("UI Follow Settings")]
+    [SerializeField] private Vector2 verticalScreenOffset = new Vector2(110f, 60f);
+    [SerializeField] private Vector2 horizontalScreenOffset = new Vector2(110f, -60f);
+
     [Header("Boost Settings")]
     [SerializeField] private float maxBoost = 100f;
     [SerializeField] private float boostConsumptionRate = 20f; // /sec
@@ -31,6 +35,7 @@ public class BoostController : MonoBehaviour
     private float currentBoost;
     private Color leftOriginalColor = Color.white;
     private Color rightOriginalColor = Color.white;
+    private Camera cachedCamera;
 
     // 他スクリプト用読み取り
     public bool IsBoosting => isBoosting;
@@ -54,6 +59,7 @@ public class BoostController : MonoBehaviour
         ConfigureBoostUI();
         UpdateBoostUI();
         SetBoostUIVisibility(ShouldShowBoostUI());
+        UpdateBoostUIPosition();
     }
 
     private void OnDisable()
@@ -90,6 +96,7 @@ public class BoostController : MonoBehaviour
 
         UpdateBoostUI();
         SetBoostUIVisibility(ShouldShowBoostUI());
+        UpdateBoostUIPosition();
     }
 
     private void OnBoostPerformed(InputAction.CallbackContext ctx)
@@ -156,7 +163,6 @@ public class BoostController : MonoBehaviour
         if (rect)
         {
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(90f, 0f);
             rect.sizeDelta = new Vector2(18f, 140f);
         }
 
@@ -199,6 +205,68 @@ public class BoostController : MonoBehaviour
                 labelText.enableWordWrapping = false;
             }
         }
+    }
+
+    private void UpdateBoostUIPosition()
+    {
+        UpdateSliderPosition(boostBarVertical, verticalScreenOffset);
+        UpdateSliderPosition(boostBarHorizontal, horizontalScreenOffset);
+    }
+
+    private void UpdateSliderPosition(Slider slider, Vector2 screenOffset)
+    {
+        if (!slider)
+        {
+            return;
+        }
+
+        RectTransform sliderRect = slider.GetComponent<RectTransform>();
+        if (!sliderRect)
+        {
+            return;
+        }
+
+        Canvas canvas = slider.GetComponentInParent<Canvas>();
+        if (!canvas)
+        {
+            return;
+        }
+
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        if (!canvasRect)
+        {
+            return;
+        }
+
+        Camera camera = GetCameraForCanvas(canvas);
+        Vector3 worldPosition = transform.position;
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(camera, worldPosition);
+        Vector2 targetScreenPoint = screenPoint + screenOffset;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, targetScreenPoint, camera, out Vector2 localPoint))
+        {
+            sliderRect.anchoredPosition = localPoint;
+        }
+    }
+
+    private Camera GetCameraForCanvas(Canvas canvas)
+    {
+        if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        if (canvas.worldCamera)
+        {
+            return canvas.worldCamera;
+        }
+
+        if (!cachedCamera)
+        {
+            cachedCamera = Camera.main;
+        }
+
+        return cachedCamera;
     }
 
     private bool ShouldShowBoostUI()
