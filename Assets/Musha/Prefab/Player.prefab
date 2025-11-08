@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9085857185913699122
 RectTransform:
   m_ObjectHideFlags: 0
@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2209649901390884555
 RectTransform:
   m_ObjectHideFlags: 0
@@ -274,7 +274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7850478767437966888
 Transform:
   m_ObjectHideFlags: 0
@@ -287,7 +287,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 200959807378585913}
+  m_Father: {fileID: 6559605533332537292}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7621585919549494884
@@ -342,7 +342,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5280033233287190965
 RectTransform:
   m_ObjectHideFlags: 0
@@ -552,84 +552,6 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
---- !u!1 &3223520202585192008
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 200959807378585913}
-  - component: {fileID: 2125237578361502535}
-  - component: {fileID: 1730188701439642363}
-  m_Layer: 5
-  m_Name: Mobile Controls UI Holder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &200959807378585913
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3223520202585192008}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 7850478767437966888}
-  - {fileID: 4567854171279436228}
-  m_Father: {fileID: 6559605533332537292}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 540}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &2125237578361502535
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3223520202585192008}
-  m_CullTransparentMesh: 1
---- !u!114 &1730188701439642363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3223520202585192008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3387470248171516956
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,7 +563,6 @@ GameObject:
   - component: {fileID: 720941463771951917}
   - component: {fileID: 1179883358337497042}
   - component: {fileID: 7194297716283788435}
-  - component: {fileID: 2643415444900558671}
   - component: {fileID: 219448737348731880}
   m_Layer: 5
   m_Name: Mobile Joystick Holder
@@ -710,25 +631,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2643415444900558671
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3387470248171516956}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac83f328f6f543339bc250a0c40e05b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rangeValue: 0.65
-  allowedZone: 0
-  axisTypes: 0
-  snapX: 0
-  snapY: 0
-  holder: {fileID: 720941463771951917}
-  knob: {fileID: 5488813280393724110}
 --- !u!114 &219448737348731880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -983,7 +885,8 @@ GameObject:
   - component: {fileID: 7294074701717934853}
   - component: {fileID: 1188956262857974032}
   - component: {fileID: 9190862669062544529}
-  - component: {fileID: 6141199850623202848}
+  - component: {fileID: 699582045185543909}
+  - component: {fileID: 904029856432931164}
   - component: {fileID: 8936592597114994811}
   - component: {fileID: 8936592597114994804}
   m_Layer: 0
@@ -1005,7 +908,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 200959807378585913}
+  - {fileID: 7850478767437966888}
   - {fileID: 8936592596357274659}
   - {fileID: 2434655621733820991}
   m_Father: {fileID: 0}
@@ -1050,8 +953,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c1a86da4961e4979b47cf75222bcd12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   maxSpeed: 15
   autoForwardMovement: 0
   pitchAmount: 1
@@ -1076,7 +979,7 @@ MonoBehaviour:
   baseDrag: 1.5
   maxDrag: 1.5
   adjDragMaxSpeed: 20
---- !u!114 &6141199850623202848
+--- !u!114 &699582045185543909
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1085,11 +988,51 @@ MonoBehaviour:
   m_GameObject: {fileID: 4917399727745862538}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37813d539ab842bbb58794397784f06d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pitchAndRollController: {fileID: 3729987430627264143}
-  liftAndYawController: {fileID: 2643415444900558671}
+  m_Script: {fileID: 11500000, guid: a8087be870bc645358c87098ba0a1f94, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  lerpSpeed: 5
+  releaseLerpSpeed: 10
+  keyInputs:
+    rollLeft: 97
+    rollRight: 100
+    pitchForward: 119
+    pitchBackward: 115
+    yawLeft: 276
+    yawRight: 275
+    liftUp: 273
+    liftDown: 274
+--- !u!114 &904029856432931164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4917399727745862538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1961ec661eb84074b217abf8d6d9b495, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  inputActions: {fileID: 11400000, guid: 477a546171a417744848e0bba645ea92, type: 3}
+  pointerContactActionName: Player/PointerContact
+  pointerDeltaActionName: Player/PointerDelta
+  forwardResponse: 6
+  releaseDeceleration: 3
+  releaseHoldDuration: 0.2
+  turnSensitivity: 0.01
+  turnResponse: 8
+  rollResponse: 6
+  inputDeadzone: 0.08
+  verticalSensitivity: 0.01
+  liftResponse: 6
+  liftReleaseSpeed: 5
+  stationarySpeedThreshold: 0.6
+  ascendThreshold: 0.25
+  brakeThreshold: 0.35
+  quickStopDuration: 0.35
+  quickStopPitch: -0.75
+  quickStopRecovery: 8
 --- !u!114 &8936592597114994811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1100,11 +1043,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab0ec88562a9bac4c9a8189c75065e02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   animator: {fileID: 8586551085461139525}
-  joystick: {fileID: 3729987430627264143}
-  joystickThreshold: 0.1
+  droneController: {fileID: 9190862669062544529}
+  touchInputHandler: {fileID: 904029856432931164}
+  inputThreshold: 0.2
+  velocityThreshold: 0.5
 --- !u!114 &8936592597114994804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1115,16 +1060,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 533633f2371266f47aa28738ef2fbabc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   boostBarVertical: {fileID: 0}
   boostBarHorizontal: {fileID: 0}
   maxBoost: 100
   boostConsumptionRate: 20
   boostRechargeRate: 10
   boostSpeedMultiplier: 2
-  boostButtonVertical: {fileID: 5743744655407134347}
-  boostButtonHorizontal: {fileID: 787556285501930948}
+  inputActions: {fileID: 11400000, guid: 477a546171a417744848e0bba645ea92, type: 3}
+  boostActionName: Player/Boost
   leftHandParticle: {fileID: 0}
   rightHandParticle: {fileID: 0}
   leftTrail: {fileID: 0}
@@ -1164,7 +1109,7 @@ RectTransform:
   - {fileID: 720941463771951917}
   - {fileID: 9085857185913699122}
   - {fileID: 3373935577357499687}
-  m_Father: {fileID: 200959807378585913}
+  m_Father: {fileID: 6559605533332537292}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1244,9 +1189,7 @@ GameObject:
   - component: {fileID: 8566084810919288967}
   - component: {fileID: 3779847299564319152}
   - component: {fileID: 8843614271304785443}
-  - component: {fileID: 3729987430627264143}
   - component: {fileID: 5056862288597624813}
-  - component: {fileID: 8936592597211121058}
   m_Layer: 5
   m_Name: Mobile Joystick Holder
   m_TagString: Untagged
@@ -1314,25 +1257,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3729987430627264143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7682066992124290886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac83f328f6f543339bc250a0c40e05b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rangeValue: 0.65
-  allowedZone: 0
-  axisTypes: 0
-  snapX: 0
-  snapY: 0
-  holder: {fileID: 8566084810919288967}
-  knob: {fileID: 8839020754910157551}
 --- !u!114 &5056862288597624813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1348,21 +1272,6 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
---- !u!114 &8936592597211121058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7682066992124290886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d64d9f4a1031ecf4cb5cc07e48b20e05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mobileController: {fileID: 3729987430627264143}
-  enableDebugInput: 1
-  enableHorizontalInput: 1
 --- !u!1 &7693951626014535107
 GameObject:
   m_ObjectHideFlags: 0

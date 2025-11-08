@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using RageRunGames.EasyFlyingSystem; // DroneController を含む名前空間を追加
+using WonderAir.Drone;
 
 public class TimerController : MonoBehaviour
 {

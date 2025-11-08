@@ -1,116 +1,156 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using WonderAir.Drone;
 
 public class BoostController : MonoBehaviour
 {
-    public Slider boostBarVertical;   // 縦画面用のブーストゲージ
-    public Slider boostBarHorizontal; // 横画面用のブーストゲージ
-    public float maxBoost = 100f;     // ブーストゲージの最大値
-    public float boostConsumptionRate = 20f; // ブーストの消費速度
-    public float boostRechargeRate = 10f;    // ブーストの回復速度
-    public float boostSpeedMultiplier = 2.0f; // ブースト時の速度倍率
+    [Header("Gauge")]
+    public Slider boostBarVertical;
+    public Slider boostBarHorizontal;
 
-    public Button boostButtonVertical;   // 縦画面用のブーストボタン
-    public Button boostButtonHorizontal; // 横画面用のブーストボタン
+    [Header("Boost Settings")]
+    public float maxBoost = 100f;
+    public float boostConsumptionRate = 20f;
+    public float boostRechargeRate = 10f;
+    public float boostSpeedMultiplier = 2.0f;
 
-    public ParticleSystem leftHandParticle;  // 左手のパーティクル
-    public ParticleSystem rightHandParticle; // 右手のパーティクル
-    public TrailRenderer leftTrail;          // 左手のトレイル
-    public TrailRenderer rightTrail;         // 右手のトレイル
+    [Header("Input Actions")]
+    [SerializeField] private InputActionAsset inputActions;
+    [SerializeField] private string boostActionName = "Player/Boost";
 
-    private bool isBoosting = false;  // ブーストが有効かどうか
-    private float currentBoost;       // 現在のブースト量
+    [Header("VFX")]
+    public ParticleSystem leftHandParticle;
+    public ParticleSystem rightHandParticle;
+    public TrailRenderer leftTrail;
+    public TrailRenderer rightTrail;
 
-    private RageRunGames.EasyFlyingSystem.DroneController droneController; // ドローン制御用の参照
-    private float originalMaxSpeed;   // 初期の最大速度を保存
-    private Color leftOriginalColor;   // 左手パーティクルの元の色
-    private Color rightOriginalColor;  // 右手パーティクルの元の色
+    private bool isBoosting;
+    private float currentBoost;
 
-    void Awake()
+    private DroneController droneController;
+    private float originalMaxSpeed;
+    private Color leftOriginalColor;
+    private Color rightOriginalColor;
+
+    private InputAction boostAction;
+
+    public bool IsBoosting => isBoosting;
+
+    private void Awake()
     {
         currentBoost = maxBoost;
-        droneController = GetComponent<RageRunGames.EasyFlyingSystem.DroneController>();
+        droneController = GetComponent<DroneController>();
 
         if (droneController == null)
         {
             Debug.LogError("DroneController が見つかりません。同じオブジェクトにアタッチしてください。");
+            enabled = false;
+            return;
         }
 
-        originalMaxSpeed = droneController.maxSpeed; // DroneController の初期速度を保存
-
-        // ボタンのクリックイベントを設定
-        if (boostButtonVertical != null)
-        {
-            boostButtonVertical.onClick.AddListener(ToggleBoost);
-        }
-        if (boostButtonHorizontal != null)
-        {
-            boostButtonHorizontal.onClick.AddListener(ToggleBoost);
-        }
-
-        UpdateBoostUI();
+        originalMaxSpeed = droneController.maxSpeed;
 
         if (UIHandler.Instance != null)
         {
             UIHandler.Instance.RegisterOrientationObjects(boostBarVertical?.gameObject, boostBarHorizontal?.gameObject);
-            UIHandler.Instance.RegisterOrientationObjects(boostButtonVertical?.gameObject, boostButtonHorizontal?.gameObject);
         }
 
-        if (leftHandParticle != null)
-        {
-            leftOriginalColor = leftHandParticle.main.startColor.color;
-        }
-        if (rightHandParticle != null)
-        {
-            rightOriginalColor = rightHandParticle.main.startColor.color;
-        }
-
-        // トレイルの初期色を白に設定
+        CacheOriginalColors();
         SetTrailColor(Color.white, Color.white);
+        UpdateBoostUI();
     }
 
-    void Update()
+    private void OnEnable()
     {
-        // For debugging: toggle boosting with the space key
-        if (Input.GetKeyDown(KeyCode.Space))
+        ResolveBoostAction();
+        if (boostAction != null)
         {
-            ToggleBoost();
+            boostAction.performed += OnBoostPerformed;
+            boostAction.Enable();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (boostAction != null)
+        {
+            boostAction.performed -= OnBoostPerformed;
+            boostAction.Disable();
+        }
+    }
+
+    private void Update()
+    {
+        if (droneController == null)
+        {
+            return;
         }
 
-        if (isBoosting && currentBoost > 0)
+        if (isBoosting && currentBoost > 0f)
         {
-            // ブースト中にゲージを消費
             currentBoost -= boostConsumptionRate * Time.deltaTime;
-            currentBoost = Mathf.Clamp(currentBoost, 0, maxBoost);
+            currentBoost = Mathf.Clamp(currentBoost, 0f, maxBoost);
 
-            // ブースト中の速度を設定
             droneController.maxSpeed = originalMaxSpeed * boostSpeedMultiplier;
 
-            // ブーストがゼロになったら自動解除
-            if (currentBoost <= 0)
+            if (currentBoost <= 0f)
             {
                 DisableBoost();
             }
         }
         else
         {
-            // ブーストが解除されたら元の速度に戻す
             droneController.maxSpeed = originalMaxSpeed;
 
-            // ブーストゲージの回復
             if (currentBoost < maxBoost)
             {
                 currentBoost += boostRechargeRate * Time.deltaTime;
-                currentBoost = Mathf.Clamp(currentBoost, 0, maxBoost);
+                currentBoost = Mathf.Clamp(currentBoost, 0f, maxBoost);
             }
         }
 
         UpdateBoostUI();
     }
 
+    private void OnBoostPerformed(InputAction.CallbackContext context)
+    {
+        bool triggeredByKeyboard = context.control?.device is Keyboard;
+
+        if (!triggeredByKeyboard && !CanStartBoost())
+        {
+            return;
+        }
+
+        ToggleBoost();
+    }
+
+    private bool CanStartBoost()
+    {
+        if (droneController == null)
+        {
+            return false;
+        }
+
+        var handler = droneController.InputHandler;
+        if (handler != null && handler.Pitch > 0.1f)
+        {
+            return true;
+        }
+
+        Rigidbody body = droneController.Rb;
+        if (body == null)
+        {
+            return false;
+        }
+
+        float forwardSpeed = Vector3.Dot(body.velocity, droneController.transform.forward);
+        return forwardSpeed > 0.5f;
+    }
+
     private void ToggleBoost()
     {
-        if (!isBoosting && currentBoost > 0)
+        if (!isBoosting && currentBoost > 0f)
         {
             EnableBoost();
         }
@@ -123,45 +163,61 @@ public class BoostController : MonoBehaviour
     private void EnableBoost()
     {
         isBoosting = true;
-        UpdateButtonColor();
         SetParticleColor(Color.yellow, Color.yellow);
         SetTrailColor(Color.yellow, Color.yellow);
+        UpdateBoostUI();
     }
 
     private void DisableBoost()
     {
         isBoosting = false;
-        UpdateButtonColor();
         SetParticleColor(leftOriginalColor, rightOriginalColor);
         SetTrailColor(Color.white, Color.white);
+        UpdateBoostUI();
     }
-
-    public bool IsBoosting => isBoosting;
 
     private void UpdateBoostUI()
     {
-        float fillAmount = currentBoost / maxBoost;
+        float fillAmount = maxBoost > 0f ? currentBoost / maxBoost : 0f;
+
         if (boostBarVertical != null)
         {
             boostBarVertical.value = fillAmount;
         }
+
         if (boostBarHorizontal != null)
         {
             boostBarHorizontal.value = fillAmount;
         }
+
+        UpdateGaugeVisibility();
     }
 
-    private void UpdateButtonColor()
+    private void UpdateGaugeVisibility()
     {
-        Color targetColor = isBoosting ? Color.yellow : Color.white;
+        bool shouldShow = isBoosting || currentBoost < maxBoost;
 
-        if (boostButtonVertical != null)
+        if (boostBarVertical != null)
         {
-            boostButtonVertical.GetComponent<Image>().color = targetColor;
+            boostBarVertical.gameObject.SetActive(shouldShow);
         }
-        if (boostButtonHorizontal != null)
+
+        if (boostBarHorizontal != null)
         {
-            boostButtonHorizontal.GetComponent<Image>().color = targetColor;
+            boostBarHorizontal.gameObject.SetActive(shouldShow);
+        }
+    }
+
+    private void CacheOriginalColors()
+    {
+        if (leftHandParticle != null)
+        {
+            leftOriginalColor = leftHandParticle.main.startColor.color;
+        }
+
+        if (rightHandParticle != null)
+        {
+            rightOriginalColor = rightHandParticle.main.startColor.color;
         }
     }
 
@@ -172,6 +228,7 @@ public class BoostController : MonoBehaviour
             var main = leftHandParticle.main;
             main.startColor = leftColor;
         }
+
         if (rightHandParticle != null)
         {
             var main = rightHandParticle.main;
@@ -185,6 +242,7 @@ public class BoostController : MonoBehaviour
         {
             leftTrail.startColor = leftColor;
         }
+
         if (rightTrail != null)
         {
             rightTrail.startColor = rightColor;
@@ -195,5 +253,25 @@ public class BoostController : MonoBehaviour
     {
         currentBoost += amount;
         currentBoost = Mathf.Clamp(currentBoost, 0, maxBoost);
+        UpdateBoostUI();
+    }
+
+    private void ResolveBoostAction()
+    {
+        if (inputActions == null)
+        {
+            boostAction = null;
+            return;
+        }
+
+        try
+        {
+            boostAction = inputActions.FindAction(boostActionName, true);
+        }
+        catch (System.Exception)
+        {
+            Debug.LogWarning($"Boost action '{boostActionName}' not found on asset '{inputActions.name}'.");
+            boostAction = null;
+        }
     }
 }

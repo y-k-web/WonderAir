@@ -22,17 +22,123 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PointerContact",
+                    "type": "Button",
+                    "id": "a4a51a50-8324-4f23-9902-3ab219099adc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PointerDelta",
+                    "type": "Value",
+                    "id": "af8f9afb-7522-46bc-8c96-799414ee4b30",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "46a6c011-0794-4b8b-ad7d-3f9c0ec95410",
-                    "path": "<Touchscreen>/primaryTouch/delta",
+                    "name": "WASD",
+                    "id": "ff21c49d-9d64-4a57-93ea-5f240b9c5878",
+                    "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "Player",
                     "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "3244a9c4-713a-47ff-b8b9-337ddc593e76",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "42c9976f-b874-494b-9726-dae9c87011e5",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "86a60199-0b38-48f5-9a18-9b8479e88f00",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "8809a5c2-78fd-4f92-8a65-70a475dabd7c",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "b9ce6a66-9953-45f6-a58d-a81965e39519",
+                    "path": "<Touchscreen>/primaryTouch/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "PointerDelta",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2bccbf5a-82c5-4627-8b75-00d64cdacd6a",
+                    "path": "<Pointer>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "PointerDelta",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "218632a8-89af-4013-b2a2-01d37a4936e4",
+                    "path": "<Touchscreen>/primaryTouch/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "PointerContact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "63b61657-fc97-433c-97ef-e6d24a18556c",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "PointerContact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -40,7 +146,29 @@
                     "name": "",
                     "id": "9ffc17c5-b327-4ed6-82b6-01167d93c6f3",
                     "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "",
+                    "interactions": "Tap(duration=0.3,pressPoint=0.3)",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da520429-d27c-4f79-8326-ccc7b0b38532",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Tap(duration=0.3,pressPoint=0.3)",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6bd40f44-5dde-428c-869f-af04d92f43e5",
+                    "path": "<Keyboard>/space",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "Player",
                     "action": "Boost",

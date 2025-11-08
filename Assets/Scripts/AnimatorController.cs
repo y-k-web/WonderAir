@@ -1,17 +1,19 @@
 using UnityEngine;
 
-namespace RageRunGames.EasyFlyingSystem
+namespace WonderAir.Drone
 {
     public class AnimatorController : MonoBehaviour
     {
         [SerializeField] private Animator animator;
-        [SerializeField] private MobileController joystick;
-        [SerializeField] private float joystickThreshold = 0.1f;
+        [SerializeField] private DroneController droneController;
+        [SerializeField] private TouchInputHandler touchInputHandler;
+        [SerializeField] private float inputThreshold = 0.2f;
+        [SerializeField] private float velocityThreshold = 0.5f;
 
         private bool isFlying = false;
         private bool isColliding = false;
 
-        private void Start()
+        private void Awake()
         {
             if (animator == null)
             {
@@ -22,62 +24,95 @@ namespace RageRunGames.EasyFlyingSystem
                 }
             }
 
-            if (joystick == null)
+            if (droneController == null)
             {
-                Debug.LogError("MobileController not assigned!");
+                droneController = GetComponentInParent<DroneController>();
+                if (droneController == null)
+                {
+                    Debug.LogError("DroneController not assigned!");
+                }
+            }
+
+            if (touchInputHandler == null && droneController != null)
+            {
+                touchInputHandler = droneController.GetComponent<TouchInputHandler>();
             }
         }
 
         private void Update()
         {
-            if (isColliding) return;
-
-            float horizontal = joystick.Horizontal;
-            float vertical = joystick.Vertical;
-            Vector2 joystickInput = new Vector2(horizontal, vertical);
-
-            bool isOperating = joystickInput.magnitude > joystickThreshold;
-
-            if (isFlying != isOperating)
+            if (isColliding || animator == null || droneController == null)
             {
-                isFlying = isOperating;
-                animator.SetBool("IsFlying", isFlying);
-                Debug.Log($"Animator Bool 'IsFlying' set to: {isFlying}");
+                return;
             }
+
+            bool hasInput = HasMovementInput();
+            bool shouldFly = hasInput || HasMeaningfulVelocity();
+
+            if (isFlying != shouldFly)
+            {
+                isFlying = shouldFly;
+                animator.SetBool("IsFlying", isFlying);
+            }
+        }
+
+        private bool HasMovementInput()
+        {
+            if (touchInputHandler != null && touchInputHandler.HasActiveInput)
+            {
+                return true;
+            }
+
+            var handler = droneController.InputHandler;
+            if (handler == null)
+            {
+                return false;
+            }
+
+            return Mathf.Abs(handler.Pitch) > inputThreshold ||
+                   Mathf.Abs(handler.Roll) > inputThreshold ||
+                   Mathf.Abs(handler.Yaw) > inputThreshold ||
+                   Mathf.Abs(handler.Lift) > inputThreshold;
+        }
+
+        private bool HasMeaningfulVelocity()
+        {
+            Rigidbody body = droneController.Rb;
+            if (body == null)
+            {
+                return false;
+            }
+
+            return body.velocity.sqrMagnitude > velocityThreshold * velocityThreshold;
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.collider.GetType() == typeof(TerrainCollider))
+            if (collision.collider is TerrainCollider)
             {
-                Debug.Log("Collision with Terrain detected.");
-                
                 if (IsInFlyingState())
                 {
                     isColliding = true;
-
-                    // 衝突アニメーションのトリガー
                     animator.SetTrigger("IsColliding");
-                    Debug.Log("Animator Trigger 'Colliding' set.");
-
-                    // 衝突状態を解除
-                    Invoke(nameof(ResetCollisionState), 1.0f); // アニメーション長さに応じて調整
+                    Invoke(nameof(ResetCollisionState), 1.0f);
                 }
             }
         }
 
         private bool IsInFlyingState()
         {
+            if (animator == null)
+            {
+                return false;
+            }
+
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            bool isFlyingState = stateInfo.IsName("Flying");
-            Debug.Log($"IsInFlyingState: {isFlyingState}");
-            return isFlyingState;
+            return stateInfo.IsName("Flying");
         }
 
         private void ResetCollisionState()
         {
             isColliding = false;
-            Debug.Log("Collision state reset");
         }
     }
 }

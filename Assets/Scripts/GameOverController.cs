@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using RageRunGames.EasyFlyingSystem; // DroneControllerが含まれているnamespaceを追加
+using WonderAir.Drone;
 
 public class GameOverController : MonoBehaviour
 {
