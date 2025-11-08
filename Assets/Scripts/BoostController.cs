@@ -5,8 +5,7 @@ using UnityEngine.UI;
 public class BoostController : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Slider boostBarVertical;
-    [SerializeField] private Slider boostBarHorizontal;
+    [SerializeField] private Slider boostBar;
 
     [Header("Boost Settings")]
     [SerializeField] private float maxBoost = 100f;
@@ -98,12 +97,14 @@ public class BoostController : MonoBehaviour
         if (currentBoost <= 0f) return;
         isBoosting = true;
         SetFXColor(Color.yellow, Color.yellow);
+        boostBar.gameObject.SetActive(true);
     }
 
     public void DisableBoost()
     {
         isBoosting = false;
         SetFXColor(leftOriginalColor, rightOriginalColor);
+        boostBar.gameObject.SetActive(false);
     }
 
     public void ToggleBoost()  // UIボタンからも呼べるように
@@ -121,8 +122,7 @@ public class BoostController : MonoBehaviour
     private void UpdateBoostUI()
     {
         float v = (maxBoost <= 0f) ? 0f : currentBoost / maxBoost;
-        if (boostBarVertical)   boostBarVertical.value = v;
-        if (boostBarHorizontal) boostBarHorizontal.value = v;
+        if (boostBar)   boostBar.value = v;
     }
 
     private void SetFXColor(Color leftColor, Color rightColor)
