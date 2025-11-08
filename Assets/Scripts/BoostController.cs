@@ -5,8 +5,8 @@ using UnityEngine.UI;
 public class BoostController : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Slider boostBarVertical;
-    [SerializeField] private Slider boostBarHorizontal;
+    [SerializeField] private GameObject boostGaugeRoot;
+    [SerializeField] private Slider boostBar;
 
     [Header("Boost Settings")]
     [SerializeField] private float maxBoost = 100f;
@@ -51,6 +51,7 @@ public class BoostController : MonoBehaviour
         if (rightHandParticle) rightOriginalColor = rightHandParticle.main.startColor.color;
 
         UpdateBoostUI();
+        SetBoostGaugeVisible(false);
     }
 
     private void OnDisable()
@@ -60,6 +61,8 @@ public class BoostController : MonoBehaviour
             boostAction.action.performed -= OnBoostPerformed;
             boostAction.action.Disable();
         }
+
+        SetBoostGaugeVisible(false);
     }
 
     private void Update()
@@ -98,12 +101,14 @@ public class BoostController : MonoBehaviour
         if (currentBoost <= 0f) return;
         isBoosting = true;
         SetFXColor(Color.yellow, Color.yellow);
+        SetBoostGaugeVisible(true);
     }
 
     public void DisableBoost()
     {
         isBoosting = false;
         SetFXColor(leftOriginalColor, rightOriginalColor);
+        SetBoostGaugeVisible(false);
     }
 
     public void ToggleBoost()  // UIボタンからも呼べるように
@@ -121,8 +126,17 @@ public class BoostController : MonoBehaviour
     private void UpdateBoostUI()
     {
         float v = (maxBoost <= 0f) ? 0f : currentBoost / maxBoost;
-        if (boostBarVertical)   boostBarVertical.value = v;
-        if (boostBarHorizontal) boostBarHorizontal.value = v;
+        if (boostBar) boostBar.value = v;
+    }
+
+    private void SetBoostGaugeVisible(bool visible)
+    {
+        if (!boostGaugeRoot) return;
+
+        if (boostGaugeRoot.activeSelf != visible)
+        {
+            boostGaugeRoot.SetActive(visible);
+        }
     }
 
     private void SetFXColor(Color leftColor, Color rightColor)
