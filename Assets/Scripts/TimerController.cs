@@ -1,90 +1,119 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement;
-using RageRunGames.EasyFlyingSystem; // DroneController を含む名前空間を追加
 
 public class TimerController : MonoBehaviour
 {
+    [Header("Time")]
     public float timeLimit = 60.0f;
     private float currentTime;
-    public TMP_Text timerTextVertical;   // 縦向きのときに表示するタイマー
-    public TMP_Text timerTextHorizontal; // 横向きのときに表示するタイマー
     private float animationDuration = 1.0f;
     private float currentAnimationTime = 0f;
-    private bool isGameOver = false; // ゲームオーバーフラグ
-    public GameObject resultVertical; // 縦向きのときに表示するゲームオーバー画面
-    public GameObject resultHorizontal; // 横向きのときに表示するゲームオーバー画面
-    [SerializeField] private ScoreManager scoreManager; // ScoreManagerへの参照
+    private bool isGameOver = false;
 
-    void Start()
+    [Header("UI")]
+    public TMP_Text timerTextVertical;      // 縦向き表示
+    public TMP_Text timerTextHorizontal;    // 横向き表示
+    public GameObject resultVertical;       // 縦向きのリザルト
+    public GameObject resultHorizontal;     // 横向きのリザルト
+
+    [Header("Refs")]
+    [SerializeField] private ScoreManager scoreManager;     // 任意でインスペクタ割り当て
+    [SerializeField] private PlayerController playerController; // 任意でインスペクタ割り当て
+
+    private void Awake()
     {
-        currentTime = timeLimit;
-        UIHandler.Instance.RegisterOrientationObjects(timerTextVertical.gameObject, timerTextHorizontal.gameObject);
-
+        // 参照が未設定なら探す（Unityバージョン差分に対応）
+#if UNITY_6000_0_OR_NEWER
         if (scoreManager == null)
-        {
-            scoreManager = FindObjectOfType<ScoreManager>();
-        }
+            scoreManager = FindFirstObjectByType<ScoreManager>(FindObjectsInactive.Include);
+        if (playerController == null)
+            playerController = FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
+#else
+        if (scoreManager == null)
+            scoreManager = FindObjectOfType<ScoreManager>(true);
+        if (playerController == null)
+            playerController = FindObjectOfType<PlayerController>(true);
+#endif
     }
 
-    void Update()
+    private void Start()
     {
-        if (!isGameOver) // ゲームオーバーでない場合にのみ更新
+        currentTime = timeLimit;
+
+        // 向き切り替えの登録（存在チェック付き）
+        if (UIHandler.Instance != null)
+            UIHandler.Instance.RegisterOrientationObjects(timerTextVertical?.gameObject, timerTextHorizontal?.gameObject);
+
+        // リザルトは開始時は非表示に
+        if (resultVertical) resultVertical.SetActive(false);
+        if (resultHorizontal) resultHorizontal.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (isGameOver) return;
+
+        currentTime -= Time.deltaTime;
+        var remain = Mathf.Ceil(currentTime);
+        if (timerTextVertical)   timerTextVertical.text   = remain.ToString();
+        if (timerTextHorizontal) timerTextHorizontal.text = remain.ToString();
+
+        // 10秒以下で点滅＆赤色
+        if (currentTime <= 10f)
         {
-            currentTime -= Time.deltaTime;
-            timerTextVertical.text = Mathf.Ceil(currentTime).ToString();
-            timerTextHorizontal.text = Mathf.Ceil(currentTime).ToString();
+            if (timerTextVertical)   timerTextVertical.color   = Color.red;
+            if (timerTextHorizontal) timerTextHorizontal.color = Color.red;
 
-            if (currentTime <= 10f)
-            {
-                timerTextVertical.color = Color.red;
-                timerTextHorizontal.color = Color.red;
+            currentAnimationTime += Time.deltaTime;
+            float t = Mathf.PingPong(currentAnimationTime, animationDuration) / animationDuration;
+            Vector3 scale = Vector3.Lerp(Vector3.one, new Vector3(1.5f, 1.5f, 1f), t);
 
-                currentAnimationTime += Time.deltaTime;
-                float scaleValue = Mathf.PingPong(currentAnimationTime, animationDuration);
-                Vector3 targetScale = Vector3.Lerp(new Vector3(1, 1, 1), new Vector3(1.5f, 1.5f, 1.5f), scaleValue / animationDuration);
-                timerTextVertical.rectTransform.localScale = targetScale;
-                timerTextHorizontal.rectTransform.localScale = targetScale;
-            }
-            else
+            if (timerTextVertical)   timerTextVertical.rectTransform.localScale   = scale;
+            if (timerTextHorizontal) timerTextHorizontal.rectTransform.localScale = scale;
+        }
+        else
+        {
+            if (timerTextVertical)
             {
                 timerTextVertical.color = Color.white;
-                timerTextHorizontal.color = Color.white;
-
-                timerTextVertical.rectTransform.localScale = new Vector3(1, 1, 1);
-                timerTextHorizontal.rectTransform.localScale = new Vector3(1, 1, 1);
-                currentAnimationTime = 0f;
+                timerTextVertical.rectTransform.localScale = Vector3.one;
             }
-
-            if (currentTime <= 0)
+            if (timerTextHorizontal)
             {
-                GameOver(); // ゲームオーバー処理を呼び出す
+                timerTextHorizontal.color = Color.white;
+                timerTextHorizontal.rectTransform.localScale = Vector3.one;
             }
+            currentAnimationTime = 0f;
         }
+
+        if (currentTime <= 0f)
+            GameOver();
     }
 
     public void AddTime(float amount)
     {
-        currentTime += amount;
+        currentTime = Mathf.Max(0f, currentTime + amount);
     }
 
     public void GameOver()
     {
-        isGameOver = true; // ゲームオーバーフラグを設定
+        if (isGameOver) return;
+        isGameOver = true;
 
-        // ゲームオーバー時のプレイヤーの操作を無効にする
-        if (droneController != null)
-        {
-            droneController.enabled = false; // DroneController を無効にして動作を停止
-        }
-        else
-        {
-            Debug.LogWarning("DroneController reference is not set.");
-        }
+        // プレイヤー操作を停止
+        if (playerController != null)
+            playerController.enabled = false;
 
-        UIHandler.Instance.RegisterOrientationObjects(resultVertical, resultHorizontal);
+        // リザルトUIの向き切替に登録＆表示
+        if (UIHandler.Instance != null)
+            UIHandler.Instance.RegisterOrientationObjects(resultVertical, resultHorizontal);
+        if (resultVertical)   resultVertical.SetActive(true);
+        if (resultHorizontal) resultHorizontal.SetActive(true);
 
-        scoreManager.UpdateGameOverScoreText();
-        Debug.Log("GameOver method is called");
+        // スコア更新
+        if (scoreManager != null)
+            scoreManager.UpdateGameOverScoreText();
+
+        Debug.Log("GameOver");
     }
 }

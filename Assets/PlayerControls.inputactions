@@ -58,9 +58,9 @@
                 },
                 {
                     "name": "",
-                    "id": "5946bb3b-5bbc-402f-b39f-94923a93129d",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Hold",
+                    "id": "76e79a21-ecd7-41c4-8064-181df9e08188",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "MoveForward",
@@ -80,8 +80,8 @@
                 },
                 {
                     "name": "",
-                    "id": "443b81ad-c468-40bb-ab54-cc66d739465f",
-                    "path": "<Mouse>/leftButton",
+                    "id": "0d4b2fa6-3f35-4a1f-be38-d57f856c0033",
+                    "path": "<Keyboard>/space",
                     "interactions": "Tap",
                     "processors": "",
                     "groups": "",
