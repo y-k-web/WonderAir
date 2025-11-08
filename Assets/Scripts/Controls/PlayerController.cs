@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour
     public Animator animator;       // 任意
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private float boostFovIncrease = 5f;
+    [SerializeField] private float boostFovAdjustSpeed = 10f;
 
     // runtime state
     private bool forwardHeld;
@@ -73,7 +74,12 @@ public class PlayerController : MonoBehaviour
                 defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
                 cameraFovCached = true;
             }
-            virtualCamera.m_Lens.FieldOfView = defaultCameraFov + (isBoosting ? boostFovIncrease : 0f);
+            float targetFov = defaultCameraFov + (isBoosting ? boostFovIncrease : 0f);
+            float currentFov = virtualCamera.m_Lens.FieldOfView;
+            float newFov = (boostFovAdjustSpeed > 0f)
+                ? Mathf.MoveTowards(currentFov, targetFov, boostFovAdjustSpeed * Time.deltaTime)
+                : targetFov;
+            virtualCamera.m_Lens.FieldOfView = newFov;
         }
 
         // アニメーター
