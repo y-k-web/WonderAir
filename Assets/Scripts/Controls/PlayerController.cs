@@ -309,7 +309,7 @@ public class PlayerController : MonoBehaviour
 
         var thirdPerson = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         if (thirdPerson != null)
-            thirdPerson.BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+            thirdPerson.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
 
         virtualCamera.m_Lens.Dutch = 0f;
     }
