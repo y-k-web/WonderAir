@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,12 +7,10 @@ using UnityEngine.UI;
 public class BoostController : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Slider boostBarVertical;
-    [SerializeField] private Slider boostBarHorizontal;
+    [SerializeField] private Slider[] boostBars;
 
     [Header("UI Follow Settings")]
-    [SerializeField] private Vector2 verticalScreenOffset = new Vector2(110f, 60f);
-    [SerializeField] private Vector2 horizontalScreenOffset = new Vector2(110f, -60f);
+    [SerializeField] private Vector2 screenOffset = new Vector2(120f, 40f);
 
     [Header("Boost Settings")]
     [SerializeField] private float maxBoost = 100f;
@@ -137,20 +136,18 @@ public class BoostController : MonoBehaviour
     private void UpdateBoostUI()
     {
         float v = (maxBoost <= 0f) ? 0f : currentBoost / maxBoost;
-        if (boostBarVertical)
+        foreach (Slider slider in EnumerateBoostBars())
         {
-            boostBarVertical.value = v;
-        }
-        if (boostBarHorizontal)
-        {
-            boostBarHorizontal.value = v;
+            slider.value = v;
         }
     }
 
     private void ConfigureBoostUI()
     {
-        ConfigureBoostSlider(boostBarVertical);
-        ConfigureBoostSlider(boostBarHorizontal);
+        foreach (Slider slider in EnumerateBoostBars())
+        {
+            ConfigureBoostSlider(slider);
+        }
     }
 
     private void ConfigureBoostSlider(Slider slider)
@@ -209,8 +206,10 @@ public class BoostController : MonoBehaviour
 
     private void UpdateBoostUIPosition()
     {
-        UpdateSliderPosition(boostBarVertical, verticalScreenOffset);
-        UpdateSliderPosition(boostBarHorizontal, horizontalScreenOffset);
+        foreach (Slider slider in EnumerateBoostBars())
+        {
+            UpdateSliderPosition(slider, screenOffset);
+        }
     }
 
     private void UpdateSliderPosition(Slider slider, Vector2 screenOffset)
@@ -271,23 +270,33 @@ public class BoostController : MonoBehaviour
 
     private bool ShouldShowBoostUI()
     {
-        return isBoosting || currentBoost < maxBoost;
+        return isBoosting;
     }
 
     private void SetBoostUIVisibility(bool visible)
     {
-        if (boostBarVertical)
+        foreach (Slider slider in EnumerateBoostBars())
         {
-            if (boostBarVertical.gameObject.activeSelf != visible)
+            GameObject sliderGO = slider.gameObject;
+            if (sliderGO.activeSelf != visible)
             {
-                boostBarVertical.gameObject.SetActive(visible);
+                sliderGO.SetActive(visible);
             }
         }
-        if (boostBarHorizontal)
+    }
+
+    private IEnumerable<Slider> EnumerateBoostBars()
+    {
+        if (boostBars == null)
         {
-            if (boostBarHorizontal.gameObject.activeSelf != visible)
+            yield break;
+        }
+
+        foreach (Slider slider in boostBars)
+        {
+            if (slider)
             {
-                boostBarHorizontal.gameObject.SetActive(visible);
+                yield return slider;
             }
         }
     }
