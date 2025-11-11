@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     public BoostController boost;   // ← BoostController をドラッグで割り当て
     public Animator animator;       // 任意
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
+    [SerializeField] private VCamOrientationSwitcher orientationSwitcher;
     [SerializeField] private float boostFovIncrease = 5f;
     [SerializeField] private float boostFovAdjustSpeed = 10f;
 
@@ -53,7 +54,6 @@ public class PlayerController : MonoBehaviour
     private float inertiaSpeed = 0f;
     private float inspectorCameraFov;
     private bool inspectorCameraFovCaptured;
-    private bool wasBoosting;
     private float currentForwardSpeed = 0f;
 
     void OnEnable()
@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
             if (virtualCamera)
             {
                 ConfigureCameraWorldUp();
+                EnsureOrientationSwitcher();
                 if (!inspectorCameraFovCaptured)
                 {
                     inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
@@ -92,15 +93,15 @@ public class PlayerController : MonoBehaviour
         }
         if (virtualCamera)
         {
+            EnsureOrientationSwitcher();
+
             if (!inspectorCameraFovCaptured)
             {
                 inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
                 inspectorCameraFovCaptured = true;
             }
 
-            float baseFov = inspectorCameraFovCaptured
-                ? inspectorCameraFov
-                : virtualCamera.m_Lens.FieldOfView;
+            float baseFov = GetBaseFov();
 
             float targetFov = isBoosting
                 ? baseFov + Mathf.Max(0f, boostFovIncrease)
@@ -111,8 +112,6 @@ public class PlayerController : MonoBehaviour
                 ? Mathf.MoveTowards(current, targetFov, boostFovAdjustSpeed * Time.deltaTime)
                 : targetFov;
             virtualCamera.m_Lens.FieldOfView = next;
-
-            wasBoosting = isBoosting;
         }
 
         // アニメーター
@@ -262,8 +261,35 @@ public class PlayerController : MonoBehaviour
         {
             inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
             inspectorCameraFovCaptured = true;
+            EnsureOrientationSwitcher();
             ConfigureCameraWorldUp();
         }
+    }
+
+    private float GetBaseFov()
+    {
+        if (orientationSwitcher)
+        {
+            return orientationSwitcher.GetDefaultFieldOfView();
+        }
+
+        if (!inspectorCameraFovCaptured)
+        {
+            inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
+            inspectorCameraFovCaptured = true;
+        }
+
+        return inspectorCameraFov;
+    }
+
+    private void EnsureOrientationSwitcher()
+    {
+        if (orientationSwitcher)
+            return;
+
+        orientationSwitcher = GetComponentInChildren<VCamOrientationSwitcher>();
+        if (!orientationSwitcher && virtualCamera)
+            orientationSwitcher = virtualCamera.GetComponent<VCamOrientationSwitcher>();
     }
 
     private void UpdateOrientation(float deltaTime)
