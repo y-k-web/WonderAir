@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public float normalSpeed = 6f;
     public float yawFactor = 90f;
     public float pitchFactor = 90f;
+    [SerializeField] private float forwardAcceleration = 30f;
 
     [Header("Orientation")]
     [SerializeField] private PlayerVisualStabilizer visualStabilizer;
@@ -51,9 +52,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 inertiaDirection = Vector3.forward;
     private float inertiaSpeed = 0f;
     private float defaultCameraFov;
-    private bool cameraFovCached;
     private bool wasBoosting;
-    private float baseFovAtBoost;
+    private float currentForwardSpeed = 0f;
 
     void OnEnable()
     {
@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour
     {
         // 速度決定：BoostController の倍率を採用
         float speedMul = (boost != null) ? boost.CurrentSpeedMultiplier : 1f;
-        float speed = normalSpeed * speedMul;
+        float targetSpeed = normalSpeed * speedMul;
         bool isBoosting = boost && boost.IsBoosting;
 
         if (!virtualCamera && boostFovIncrease != 0f)
@@ -80,32 +80,31 @@ public class PlayerController : MonoBehaviour
             // 保険で開始時に取得できなかった場合に探して記録
             virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
             if (virtualCamera)
+            {
                 ConfigureCameraWorldUp();
+                if (defaultCameraFov <= 0f)
+                    defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
+            }
         }
         if (virtualCamera)
         {
 
-            // ブースト開始時に、その瞬間のFOVを基準として記録
-            if (isBoosting && !wasBoosting)
-                baseFovAtBoost = virtualCamera.m_Lens.FieldOfView;
-
-            // 目標FOVは「基準＋増分」。ブーストしていない時は触らない
-            if (isBoosting)
+            if (!isBoosting && !wasBoosting)
             {
-                float target = baseFovAtBoost + Mathf.Max(0f, boostFovIncrease);
-                float current = virtualCamera.m_Lens.FieldOfView;
-                float next = (boostFovAdjustSpeed > 0f)
-                    ? Mathf.MoveTowards(current, target, boostFovAdjustSpeed * Time.deltaTime)
-                    : target;
-                virtualCamera.m_Lens.FieldOfView = next;
+                // ブーストしていない通常時のFOVを常に記録
+                defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
             }
-            else if (wasBoosting)
+
+            float targetFov = isBoosting
+                ? defaultCameraFov + Mathf.Max(0f, boostFovIncrease)
+                : defaultCameraFov;
+
+            if (isBoosting || wasBoosting)
             {
-                // ブーストが終わった直後だけ、基準にスムーズに戻す
                 float current = virtualCamera.m_Lens.FieldOfView;
                 float next = (boostFovAdjustSpeed > 0f)
-                    ? Mathf.MoveTowards(current, baseFovAtBoost, boostFovAdjustSpeed * Time.deltaTime)
-                    : baseFovAtBoost;
+                    ? Mathf.MoveTowards(current, targetFov, boostFovAdjustSpeed * Time.deltaTime)
+                    : targetFov;
                 virtualCamera.m_Lens.FieldOfView = next;
             }
 
@@ -126,7 +125,9 @@ public class PlayerController : MonoBehaviour
         // 前進
         if (forwardHeld)
         {
-            transform.position += forwardDirection * speed * Time.deltaTime;
+            float accelStep = Mathf.Max(forwardAcceleration, 0f) * Time.deltaTime;
+            currentForwardSpeed = Mathf.MoveTowards(currentForwardSpeed, targetSpeed, accelStep);
+            transform.position += forwardDirection * currentForwardSpeed * Time.deltaTime;
 
             // 前進中は落下リセット
             timeSinceForwardReleased = 0f;
@@ -135,6 +136,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            float accelStep = Mathf.Max(forwardAcceleration, 0f) * Time.deltaTime;
+            currentForwardSpeed = Mathf.MoveTowards(currentForwardSpeed, 0f, accelStep);
+
             if (inertiaTimer > 0f)
             {
                 float normalizedTime = 1f - (inertiaTimer / Mathf.Max(inertiaDuration, Mathf.Epsilon));
@@ -178,6 +182,7 @@ public class PlayerController : MonoBehaviour
         if (!pressed && forwardHeld)
         {
             BeginInertia();
+            currentForwardSpeed = 0f;
         }
         else if (pressed)
         {
@@ -218,10 +223,15 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (currentForwardSpeed <= 0f)
+        {
+            inertiaTimer = 0f;
+            return;
+        }
+
         inertiaTimer = inertiaDuration;
         inertiaDirection = GetCurrentForward();
-        float speedMul = (boost != null) ? boost.CurrentSpeedMultiplier : 1f;
-        inertiaSpeed = normalSpeed * speedMul;
+        inertiaSpeed = currentForwardSpeed;
     }
 
     void Awake()
@@ -247,7 +257,6 @@ public class PlayerController : MonoBehaviour
         if (virtualCamera)
         {
             defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
-            cameraFovCached = true;
             ConfigureCameraWorldUp();
         }
     }
