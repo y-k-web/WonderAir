@@ -51,7 +51,8 @@ public class PlayerController : MonoBehaviour
     private float inertiaTimer = 0f;
     private Vector3 inertiaDirection = Vector3.forward;
     private float inertiaSpeed = 0f;
-    private float defaultCameraFov;
+    private float inspectorCameraFov;
+    private bool inspectorCameraFovCaptured;
     private bool wasBoosting;
     private float currentForwardSpeed = 0f;
 
@@ -82,31 +83,34 @@ public class PlayerController : MonoBehaviour
             if (virtualCamera)
             {
                 ConfigureCameraWorldUp();
-                if (defaultCameraFov <= 0f)
-                    defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
+                if (!inspectorCameraFovCaptured)
+                {
+                    inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
+                    inspectorCameraFovCaptured = true;
+                }
             }
         }
         if (virtualCamera)
         {
-
-            if (!isBoosting && !wasBoosting)
+            if (!inspectorCameraFovCaptured)
             {
-                // ブーストしていない通常時のFOVを常に記録
-                defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
+                inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
+                inspectorCameraFovCaptured = true;
             }
+
+            float baseFov = inspectorCameraFovCaptured
+                ? inspectorCameraFov
+                : virtualCamera.m_Lens.FieldOfView;
 
             float targetFov = isBoosting
-                ? defaultCameraFov + Mathf.Max(0f, boostFovIncrease)
-                : defaultCameraFov;
+                ? baseFov + Mathf.Max(0f, boostFovIncrease)
+                : baseFov;
 
-            if (isBoosting || wasBoosting)
-            {
-                float current = virtualCamera.m_Lens.FieldOfView;
-                float next = (boostFovAdjustSpeed > 0f)
-                    ? Mathf.MoveTowards(current, targetFov, boostFovAdjustSpeed * Time.deltaTime)
-                    : targetFov;
-                virtualCamera.m_Lens.FieldOfView = next;
-            }
+            float current = virtualCamera.m_Lens.FieldOfView;
+            float next = (boostFovAdjustSpeed > 0f)
+                ? Mathf.MoveTowards(current, targetFov, boostFovAdjustSpeed * Time.deltaTime)
+                : targetFov;
+            virtualCamera.m_Lens.FieldOfView = next;
 
             wasBoosting = isBoosting;
         }
@@ -256,7 +260,8 @@ public class PlayerController : MonoBehaviour
 
         if (virtualCamera)
         {
-            defaultCameraFov = virtualCamera.m_Lens.FieldOfView;
+            inspectorCameraFov = virtualCamera.m_Lens.FieldOfView;
+            inspectorCameraFovCaptured = true;
             ConfigureCameraWorldUp();
         }
     }
