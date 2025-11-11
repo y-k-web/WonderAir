@@ -42,16 +42,24 @@ public class VCamOrientationSwitcher : MonoBehaviour
         if (_dirty) { ApplyByCurrentOrientation(); _dirty = false; }
     }
 
+    public bool IsPortrait() => Screen.height >= Screen.width;
+
+    public float GetDefaultFieldOfView(bool? portrait = null)
+    {
+        bool isPortrait = portrait ?? IsPortrait();
+        return isPortrait ? fovPortrait : fovLandscape;
+    }
+
     void ApplyByCurrentOrientation()
     {
         if (vcam == null) return;
 
-        bool isPortrait = Screen.height >= Screen.width;
+        bool isPortrait = IsPortrait();
 
         // FOV（正投影なら OrthographicSize を使う）
         var lens = vcam.m_Lens;
         if (!lens.Orthographic)
-            lens.FieldOfView = isPortrait ? fovPortrait : fovLandscape;
+            lens.FieldOfView = GetDefaultFieldOfView(isPortrait);
         else
             lens.OrthographicSize = isPortrait ? 6.0f : 5.0f;
         vcam.m_Lens = lens;
