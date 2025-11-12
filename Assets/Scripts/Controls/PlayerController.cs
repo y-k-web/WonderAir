@@ -22,6 +22,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float pitchAutoLevelSpeed = 4f;
     [SerializeField] private float visualInputDamping = 8f;
 
+    [Header("Angular Inertia")]
+    [SerializeField] private float yawInertiaDamping = 180f;
+    [SerializeField] private float pitchInertiaDamping = 180f;
+    [SerializeField] private float pitchAutoLevelVelocityThreshold = 1f;
+
     [Header("Forward Inertia")]
     [Tooltip("前進を止めた後に慣性として維持する時間（秒）")]
     public float inertiaDuration = 0.35f;
@@ -55,18 +60,28 @@ public class PlayerController : MonoBehaviour
     private float inspectorCameraFov;
     private bool inspectorCameraFovCaptured;
     private float currentForwardSpeed = 0f;
+    private Vector2 angularVelocity = Vector2.zero;
+    private bool dragActive;
 
     void OnEnable()
     {
         Enable(forwardAction, OnForward);
         Enable(dragAction, OnDrag);
         Debug.Log("[PlayerController] Input ENABLED");
+
+        dragActive = false;
+        drag = Vector2.zero;
+        angularVelocity = Vector2.zero;
     }
     void OnDisable()
     {
         Disable(forwardAction, OnForward);
         Disable(dragAction, OnDrag);
         Debug.Log("[PlayerController] Input DISABLED");
+
+        dragActive = false;
+        drag = Vector2.zero;
+        angularVelocity = Vector2.zero;
     }
 
     void Update()
@@ -196,8 +211,18 @@ public class PlayerController : MonoBehaviour
     }
     private void OnDrag(InputAction.CallbackContext ctx)
     {
-        if (ctx.performed || ctx.canceled)
+        if (ctx.canceled)
+        {
+            dragActive = false;
+            drag = Vector2.zero;
+            return;
+        }
+
+        if (ctx.started || ctx.performed)
+        {
+            dragActive = true;
             drag = ctx.ReadValue<Vector2>();
+        }
     }
 
     // ---- util ----
@@ -294,22 +319,46 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateOrientation(float deltaTime)
     {
+        bool hasDragInput = dragActive && drag.sqrMagnitude > 0.0001f;
+
         // yaw
-        if (Mathf.Abs(drag.x) > 0.0001f)
+        if (dragActive && Mathf.Abs(drag.x) > 0.0001f)
         {
-            float yawDelta = drag.x * yawFactor * deltaTime;
-            yawAngle += yawDelta;
-            yawAngle = Mathf.Repeat(yawAngle, 360f);
+            angularVelocity.x = drag.x * yawFactor;
         }
+        else if (!dragActive)
+        {
+            float damping = Mathf.Max(yawInertiaDamping, 0f) * deltaTime;
+            angularVelocity.x = Mathf.MoveTowards(angularVelocity.x, 0f, damping);
+        }
+        else
+        {
+            angularVelocity.x = 0f;
+        }
+
+        yawAngle += angularVelocity.x * deltaTime;
+        yawAngle = Mathf.Repeat(yawAngle, 360f);
 
         // pitch
         float pitchLimit = visualStabilizer ? visualStabilizer.maxPitchDegrees : maxPitchDegrees;
-        if (Mathf.Abs(drag.y) > 0.0001f)
+        if (dragActive && Mathf.Abs(drag.y) > 0.0001f)
         {
-            float pitchDelta = -drag.y * pitchFactor * deltaTime;
-            currentPitch = Mathf.Clamp(currentPitch + pitchDelta, -pitchLimit, pitchLimit);
+            angularVelocity.y = -drag.y * pitchFactor;
         }
-        else if (!Mathf.Approximately(currentPitch, 0f))
+        else if (!dragActive)
+        {
+            float damping = Mathf.Max(pitchInertiaDamping, 0f) * deltaTime;
+            angularVelocity.y = Mathf.MoveTowards(angularVelocity.y, 0f, damping);
+        }
+        else
+        {
+            angularVelocity.y = 0f;
+        }
+
+        currentPitch = Mathf.Clamp(currentPitch + angularVelocity.y * deltaTime, -pitchLimit, pitchLimit);
+
+        bool allowAutoLevel = !hasDragInput && Mathf.Abs(angularVelocity.y) <= pitchAutoLevelVelocityThreshold;
+        if (allowAutoLevel && !Mathf.Approximately(currentPitch, 0f))
         {
             currentPitch = Mathf.MoveTowards(currentPitch, 0f, pitchAutoLevelSpeed * deltaTime);
         }
