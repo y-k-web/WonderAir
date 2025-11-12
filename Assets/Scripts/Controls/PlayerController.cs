@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxPitchDegrees = 20f;
     [SerializeField] private float pitchAutoLevelSpeed = 4f;
     [SerializeField] private float visualInputDamping = 8f;
+    [SerializeField] private float yawDeceleration = 180f;
+    [SerializeField] private float pitchDeceleration = 180f;
 
     [Header("Forward Inertia")]
     [Tooltip("前進を止めた後に慣性として維持する時間（秒）")]
@@ -55,6 +57,8 @@ public class PlayerController : MonoBehaviour
     private float inspectorCameraFov;
     private bool inspectorCameraFovCaptured;
     private float currentForwardSpeed = 0f;
+    private float yawVelocity = 0f;
+    private float pitchVelocity = 0f;
 
     void OnEnable()
     {
@@ -297,8 +301,17 @@ public class PlayerController : MonoBehaviour
         // yaw
         if (Mathf.Abs(drag.x) > 0.0001f)
         {
-            float yawDelta = drag.x * yawFactor * deltaTime;
-            yawAngle += yawDelta;
+            yawVelocity = drag.x * yawFactor;
+        }
+        else if (!Mathf.Approximately(yawVelocity, 0f))
+        {
+            float decelStep = Mathf.Max(yawDeceleration, 0f) * deltaTime;
+            yawVelocity = Mathf.MoveTowards(yawVelocity, 0f, decelStep);
+        }
+
+        if (!Mathf.Approximately(yawVelocity, 0f))
+        {
+            yawAngle += yawVelocity * deltaTime;
             yawAngle = Mathf.Repeat(yawAngle, 360f);
         }
 
@@ -306,12 +319,34 @@ public class PlayerController : MonoBehaviour
         float pitchLimit = visualStabilizer ? visualStabilizer.maxPitchDegrees : maxPitchDegrees;
         if (Mathf.Abs(drag.y) > 0.0001f)
         {
-            float pitchDelta = -drag.y * pitchFactor * deltaTime;
-            currentPitch = Mathf.Clamp(currentPitch + pitchDelta, -pitchLimit, pitchLimit);
+            pitchVelocity = -drag.y * pitchFactor;
         }
-        else if (!Mathf.Approximately(currentPitch, 0f))
+        else
         {
-            currentPitch = Mathf.MoveTowards(currentPitch, 0f, pitchAutoLevelSpeed * deltaTime);
+            if (!Mathf.Approximately(pitchVelocity, 0f))
+            {
+                float decelStep = Mathf.Max(pitchDeceleration, 0f) * deltaTime;
+                pitchVelocity = Mathf.MoveTowards(pitchVelocity, 0f, decelStep);
+            }
+
+            if (!Mathf.Approximately(currentPitch, 0f))
+            {
+                currentPitch = Mathf.MoveTowards(currentPitch, 0f, pitchAutoLevelSpeed * deltaTime);
+            }
+        }
+
+        if (!Mathf.Approximately(pitchVelocity, 0f))
+        {
+            currentPitch = Mathf.Clamp(currentPitch + pitchVelocity * deltaTime, -pitchLimit, pitchLimit);
+
+            if (Mathf.Approximately(currentPitch, pitchLimit) || Mathf.Approximately(currentPitch, -pitchLimit))
+            {
+                pitchVelocity = 0f;
+            }
+        }
+        else
+        {
+            currentPitch = Mathf.Clamp(currentPitch, -pitchLimit, pitchLimit);
         }
 
         transform.rotation = Quaternion.Euler(0f, yawAngle, 0f);
