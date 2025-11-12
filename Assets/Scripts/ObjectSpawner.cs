@@ -40,7 +40,8 @@ public class ObjectSpawner : MonoBehaviour
 
         const int maxAttempts = 20;
         Bounds bounds = boundary.bounds;
-        Vector3 candidate = bounds.center;
+        Vector3 fallback = bounds.center + Vector3.up * surfaceOffset;
+        bool hasFallback = false;
         float maxRayDistance = bounds.size.y + raycastPadding * 2f;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
@@ -82,14 +83,21 @@ public class ObjectSpawner : MonoBehaviour
 
                 if (!blocked)
                 {
-                    candidate = projected;
-                    return candidate;
+                    return projected;
                 }
+
+                fallback = projected;
+                hasFallback = true;
+            }
+            else
+            {
+                fallback = new Vector3(randomX, bounds.center.y + surfaceOffset, randomZ);
+                hasFallback = true;
             }
         }
 
-        Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning last candidate: {candidate}");
-        return candidate;
+        Debug.LogWarning($"No valid spawn position found after {maxAttempts} attempts. Returning fallback position: {fallback}");
+        return hasFallback ? fallback : bounds.center;
     }
 
     public void SpawnObject()
