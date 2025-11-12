@@ -53,8 +53,34 @@ public class ObjectSpawner : MonoBehaviour
             if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, maxRayDistance, surfaceLayers, QueryTriggerInteraction.Ignore))
             {
                 Vector3 projected = hit.point + Vector3.up * surfaceOffset;
+                Collider hitCollider = hit.collider;
+                bool blocked = false;
+                Collider[] overlaps = Physics.OverlapSphere(projected, spawnRadius, blockingLayers, QueryTriggerInteraction.Ignore);
 
-                if (!Physics.CheckSphere(projected, spawnRadius, blockingLayers, QueryTriggerInteraction.Ignore))
+                for (int i = 0; i < overlaps.Length; i++)
+                {
+                    Collider overlap = overlaps[i];
+
+                    if (overlap == hitCollider)
+                    {
+                        continue;
+                    }
+
+                    if (hitCollider != null && overlap.transform.IsChildOf(hitCollider.transform))
+                    {
+                        continue;
+                    }
+
+                    if (hitCollider != null && hitCollider.transform.IsChildOf(overlap.transform))
+                    {
+                        continue;
+                    }
+
+                    blocked = true;
+                    break;
+                }
+
+                if (!blocked)
                 {
                     candidate = projected;
                     return candidate;
