@@ -3,6 +3,7 @@ using System.Reflection;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using InputPointer = UnityEngine.InputSystem.Pointer;
 
 public class PlayerController : MonoBehaviour
 {
@@ -449,7 +450,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Pointer pointer = Pointer.current;
+            InputPointer pointer = InputPointer.current;
             if (pointer != null && pointer.press != null && pointer.press.isPressed)
             {
                 position = pointer.position.ReadValue();
@@ -506,7 +507,7 @@ public class PlayerController : MonoBehaviour
                 return true;
             }
         }
-        else if (device is Pointer pointer)
+        else if (device is InputPointer pointer)
         {
             var pressControl = pointer.press;
             if (pressControl != null && pressControl.isPressed)
@@ -537,7 +538,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        Pointer pointer = Pointer.current;
+        InputPointer pointer = InputPointer.current;
         if (pointer != null && pointer.press != null && pointer.press.isPressed)
         {
             position = pointer.position.ReadValue();
