@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (!dragStickActive)
+        if (!EnsureDragStickActive(ctx))
         {
             if (ctx.performed || ctx.started)
                 drag = ctx.ReadValue<Vector2>();
@@ -482,6 +482,35 @@ public class PlayerController : MonoBehaviour
         dragStickActive = false;
         dragTouchId = -1;
         drag = Vector2.zero;
+    }
+
+    private bool EnsureDragStickActive(InputAction.CallbackContext ctx)
+    {
+        if (dragStickActive)
+            return true;
+
+        if (ctx.control == null && !(ctx.performed || ctx.started))
+            return false;
+
+        if (TryGetPointerFromContext(ctx, out Vector2 position, out int touchId))
+        {
+            dragStickCenter = position;
+            dragStickActive = true;
+            dragTouchId = touchId;
+            drag = Vector2.zero;
+            return true;
+        }
+
+        if (TryGetPointerFromDevices(out position, out touchId))
+        {
+            dragStickCenter = position;
+            dragStickActive = true;
+            dragTouchId = touchId;
+            drag = Vector2.zero;
+            return true;
+        }
+
+        return false;
     }
 
     private bool TryGetPointerFromContext(InputAction.CallbackContext ctx, out Vector2 position, out int touchId)
