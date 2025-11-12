@@ -21,6 +21,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxPitchDegrees = 20f;
     [SerializeField] private float pitchAutoLevelSpeed = 4f;
     [SerializeField] private float visualInputDamping = 8f;
+    [SerializeField] private float yawAcceleration = 360f;
+    [SerializeField] private float yawDeceleration = 6f;
+    [SerializeField] private float rollAcceleration = 4f;
+    [SerializeField] private float rollDeceleration = 6f;
 
     [Header("Forward Inertia")]
     [Tooltip("前進を止めた後に慣性として維持する時間（秒）")]
@@ -55,6 +59,8 @@ public class PlayerController : MonoBehaviour
     private float inspectorCameraFov;
     private bool inspectorCameraFovCaptured;
     private float currentForwardSpeed = 0f;
+    private float currentYawSpeed = 0f;
+    private float currentRollSpeed = 0f;
 
     void OnEnable()
     {
@@ -295,12 +301,22 @@ public class PlayerController : MonoBehaviour
     private void UpdateOrientation(float deltaTime)
     {
         // yaw
-        if (Mathf.Abs(drag.x) > 0.0001f)
+        float yawInput = Mathf.Clamp(drag.x, -1f, 1f);
+        if (Mathf.Abs(yawInput) > 0.0001f)
         {
-            float yawDelta = drag.x * yawFactor * deltaTime;
-            yawAngle += yawDelta;
-            yawAngle = Mathf.Repeat(yawAngle, 360f);
+            float targetYawSpeed = yawInput * yawFactor;
+            float accelStep = Mathf.Max(yawAcceleration, 0f) * deltaTime;
+            currentYawSpeed = Mathf.MoveTowards(currentYawSpeed, targetYawSpeed, accelStep);
         }
+        else if (!Mathf.Approximately(currentYawSpeed, 0f))
+        {
+            float t = Mathf.Clamp01(yawDeceleration * deltaTime);
+            currentYawSpeed = Mathf.Lerp(currentYawSpeed, 0f, t);
+            if (Mathf.Abs(currentYawSpeed) < 0.001f)
+                currentYawSpeed = 0f;
+        }
+
+        yawAngle = Mathf.Repeat(yawAngle + currentYawSpeed * deltaTime, 360f);
 
         // pitch
         float pitchLimit = visualStabilizer ? visualStabilizer.maxPitchDegrees : maxPitchDegrees;
@@ -323,8 +339,22 @@ public class PlayerController : MonoBehaviour
     {
         if (!visualStabilizer) return;
 
+        float rollInput = Mathf.Clamp(drag.x, -1f, 1f);
+        if (Mathf.Abs(rollInput) > 0.0001f)
+        {
+            float accelStep = Mathf.Max(rollAcceleration, 0f) * deltaTime;
+            currentRollSpeed = Mathf.MoveTowards(currentRollSpeed, rollInput, accelStep);
+        }
+        else if (!Mathf.Approximately(currentRollSpeed, 0f))
+        {
+            float t = Mathf.Clamp01(rollDeceleration * deltaTime);
+            currentRollSpeed = Mathf.Lerp(currentRollSpeed, 0f, t);
+            if (Mathf.Abs(currentRollSpeed) < 0.001f)
+                currentRollSpeed = 0f;
+        }
+
         Vector2 desired = new Vector2(
-            Mathf.Clamp(drag.x, -1f, 1f),
+            Mathf.Clamp(currentRollSpeed, -1f, 1f),
             Mathf.Clamp(-drag.y, -1f, 1f)
         );
 
