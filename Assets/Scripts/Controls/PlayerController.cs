@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     public float pitchFactor = 90f;
     [SerializeField] private float forwardAcceleration = 30f;
 
+    [Header("Drag Stick")]
+    [Tooltip("タッチ操作時のスティック半径（ピクセル単位）")]
+    [SerializeField] private float dragStickRadiusPixels = 200f;
+
     [Header("Orientation")]
     [SerializeField] private PlayerVisualStabilizer visualStabilizer;
     [SerializeField] private float maxPitchDegrees = 20f;
@@ -55,6 +59,9 @@ public class PlayerController : MonoBehaviour
     private float inspectorCameraFov;
     private bool inspectorCameraFovCaptured;
     private float currentForwardSpeed = 0f;
+    private bool dragStickActive;
+    private Vector2 dragStickCenter;
+    private int dragTouchId = -1;
 
     void OnEnable()
     {
@@ -186,18 +193,39 @@ public class PlayerController : MonoBehaviour
         {
             BeginInertia();
             currentForwardSpeed = 0f;
+            ResetDragStick();
         }
         else if (pressed)
         {
             inertiaTimer = 0f;
+            CaptureDragStickCenter(ctx);
         }
 
         forwardHeld = pressed;
     }
     private void OnDrag(InputAction.CallbackContext ctx)
     {
-        if (ctx.performed || ctx.canceled)
-            drag = ctx.ReadValue<Vector2>();
+        if (ctx.canceled)
+        {
+            ResetDragStick();
+            return;
+        }
+
+        if (!dragStickActive)
+        {
+            if (ctx.performed || ctx.started)
+                drag = ctx.ReadValue<Vector2>();
+            return;
+        }
+
+        if (!TryGetDragPointerPosition(out Vector2 pointerPosition))
+        {
+            ResetDragStick();
+            return;
+        }
+
+        Vector2 rawDelta = pointerPosition - dragStickCenter;
+        drag = ConvertPointerToStick(rawDelta);
     }
 
     // ---- util ----
@@ -369,6 +397,161 @@ public class PlayerController : MonoBehaviour
         ApplyWorldUpBinding(thirdPerson);
 
         virtualCamera.m_Lens.Dutch = 0f;
+    }
+
+    private void CaptureDragStickCenter(InputAction.CallbackContext ctx)
+    {
+        dragStickActive = false;
+        dragTouchId = -1;
+
+        if (TryGetPointerFromContext(ctx, out Vector2 position, out int touchId))
+        {
+            dragStickCenter = position;
+            dragStickActive = true;
+            dragTouchId = touchId;
+            drag = Vector2.zero;
+            return;
+        }
+
+        if (TryGetPointerFromDevices(out position, out touchId))
+        {
+            dragStickCenter = position;
+            dragStickActive = true;
+            dragTouchId = touchId;
+            drag = Vector2.zero;
+        }
+    }
+
+    private bool TryGetDragPointerPosition(out Vector2 position)
+    {
+        if (!dragStickActive)
+        {
+            position = default;
+            return false;
+        }
+
+        if (dragTouchId >= 0 && Touchscreen.current != null)
+        {
+            foreach (var touch in Touchscreen.current.touches)
+            {
+                if (touch.touchId.ReadValue() == dragTouchId)
+                {
+                    if (touch.press.isPressed)
+                    {
+                        position = touch.position.ReadValue();
+                        return true;
+                    }
+
+                    position = default;
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            Pointer pointer = Pointer.current;
+            if (pointer != null && pointer.press != null && pointer.press.isPressed)
+            {
+                position = pointer.position.ReadValue();
+                return true;
+            }
+
+            if (Mouse.current != null && Mouse.current.leftButton.isPressed)
+            {
+                position = Mouse.current.position.ReadValue();
+                return true;
+            }
+        }
+
+        position = default;
+        return false;
+    }
+
+    private Vector2 ConvertPointerToStick(Vector2 pointerDelta)
+    {
+        float radius = Mathf.Max(dragStickRadiusPixels, 1f);
+        Vector2 normalized = pointerDelta / radius;
+        if (normalized.sqrMagnitude > 1f)
+            normalized = normalized.normalized;
+        return normalized;
+    }
+
+    private void ResetDragStick()
+    {
+        dragStickActive = false;
+        dragTouchId = -1;
+        drag = Vector2.zero;
+    }
+
+    private bool TryGetPointerFromContext(InputAction.CallbackContext ctx, out Vector2 position, out int touchId)
+    {
+        touchId = -1;
+
+        if (ctx.control == null)
+        {
+            position = default;
+            return false;
+        }
+
+        InputDevice device = ctx.control.device;
+        if (device is Touchscreen touchscreen)
+        {
+            foreach (var touch in touchscreen.touches)
+            {
+                if (!touch.press.isPressed)
+                    continue;
+
+                position = touch.position.ReadValue();
+                touchId = touch.touchId.ReadValue();
+                return true;
+            }
+        }
+        else if (device is Pointer pointer)
+        {
+            var pressControl = pointer.press;
+            if (pressControl != null && pressControl.isPressed)
+            {
+                position = pointer.position.ReadValue();
+                return true;
+            }
+        }
+
+        position = default;
+        return false;
+    }
+
+    private bool TryGetPointerFromDevices(out Vector2 position, out int touchId)
+    {
+        touchId = -1;
+
+        if (Touchscreen.current != null)
+        {
+            foreach (var touch in Touchscreen.current.touches)
+            {
+                if (!touch.press.isPressed)
+                    continue;
+
+                position = touch.position.ReadValue();
+                touchId = touch.touchId.ReadValue();
+                return true;
+            }
+        }
+
+        Pointer pointer = Pointer.current;
+        if (pointer != null && pointer.press != null && pointer.press.isPressed)
+        {
+            position = pointer.position.ReadValue();
+            return true;
+        }
+
+        if (Mouse.current != null && Mouse.current.leftButton.isPressed)
+        {
+            position = Mouse.current.position.ReadValue();
+            return true;
+        }
+
+        position = default;
+        return false;
     }
 
     private static readonly string[] bindingModeMemberNames = { "m_BindingMode", "BindingMode" };
